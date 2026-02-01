@@ -1,5 +1,6 @@
 package com.educlips.server.controller;
 
+import com.educlips.server.dto.LoginRequest;
 import com.educlips.server.dto.SignupRequest;
 import com.educlips.server.dto.UserResponse;
 import com.educlips.server.service.UserService;
@@ -31,7 +32,15 @@ public class UserController {
 
     @PostMapping("/users/signup")
     public UserResponse signup(@Valid @RequestBody SignupRequest request) {
-    return userService.signup(request);
-}
+        return userService.signup(request);
+    }
+
+    @PostMapping("/users/login")
+    public UserResponse login(@RequestBody LoginRequest request) {
+        return userService.login(
+            request.getEmail(),
+            request.getPassword()
+    );
+    }
 
 }

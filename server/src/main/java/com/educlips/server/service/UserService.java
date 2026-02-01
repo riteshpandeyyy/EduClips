@@ -34,4 +34,22 @@ public class UserService {
                 savedUser.getRole()
         );
     }
+
+    public UserResponse login(String email, String password) {
+
+    UserEntity user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    if (!user.getPassword().equals(password)) {
+        throw new RuntimeException("Invalid password");
+    }
+
+    return new UserResponse(
+            user.getId(),
+            user.getName(),
+            user.getEmail(),
+            user.getRole()
+    );
+}
+
 }
