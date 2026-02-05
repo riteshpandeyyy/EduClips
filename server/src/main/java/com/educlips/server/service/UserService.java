@@ -1,5 +1,6 @@
 package com.educlips.server.service;
 
+import com.educlips.server.dto.LoginResponse;
 import com.educlips.server.dto.SignupRequest;
 import com.educlips.server.dto.UserResponse;
 import org.springframework.stereotype.Service;
@@ -8,6 +9,8 @@ import com.educlips.server.exception.EmailAlreadyExistsException;
 import com.educlips.server.exception.InvalidCredentialsException;
 import com.educlips.server.exception.UserNotFoundException;
 import com.educlips.server.repository.UserRepository;
+import com.educlips.server.security.JwtUtil;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 
@@ -17,10 +20,14 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
     
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository,
+                   BCryptPasswordEncoder passwordEncoder,
+                   JwtUtil jwtUtil) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
+    this.jwtUtil = jwtUtil;
     }
 
 
@@ -52,23 +59,23 @@ public class UserService {
 }
 
 
-    public UserResponse login(String email, String password) {
+    public LoginResponse login(String email, String password) {
 
-    UserEntity user = userRepository.findByEmail(email)
-        .orElseThrow(() -> new UserNotFoundException("User not found"));
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new InvalidCredentialsException("Invalid password");
         }
 
-
-
-        return new UserResponse(
+        String token = jwtUtil.generateToken(
                 user.getId(),
-                user.getName(),
                 user.getEmail(),
                 user.getRole()
         );
+
+        return new LoginResponse(token);
     }
+
 
 }
