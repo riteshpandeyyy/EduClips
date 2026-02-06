@@ -1,13 +1,12 @@
 package com.educlips.server.config;
 
+import com.educlips.server.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import com.educlips.server.security.JwtAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 
 @Configuration
 public class SecurityConfig {
@@ -18,7 +17,6 @@ public class SecurityConfig {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
-
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -27,20 +25,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
-            .formLogin(form -> form.disable())
-            .httpBasic(basic -> basic.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/users/signup",
-                    "/users/login"
-                ).permitAll()
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(
-                jwtAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter.class
-            );
-            return http.build();
+                .csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/health",
+                                "/users/signup",
+                                "/users/login"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
+
+        return http.build();
     }
 }
