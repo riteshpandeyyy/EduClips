@@ -4,6 +4,7 @@ import com.educlips.server.dto.LoginRequest;
 import com.educlips.server.dto.LoginResponse;
 import com.educlips.server.dto.SignupRequest;
 import com.educlips.server.dto.UserResponse;
+import com.educlips.server.entity.UserEntity;
 import com.educlips.server.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
 
 
 @RestController
@@ -42,6 +44,21 @@ public class UserController {
         public LoginResponse login(@RequestBody LoginRequest request) {
            return userService.login(request.getEmail(), request.getPassword());
     }
+
+    @GetMapping("/me")
+    public UserResponse getCurrentUser(Authentication authentication) {
+
+        String email = authentication.getName(); // extracted from JWT
+        UserEntity user = userService.getCurrentUser(email);
+
+        return new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole()
+        );
+    }
+
 
 
 }
