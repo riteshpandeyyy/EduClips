@@ -1,5 +1,6 @@
 package com.educlips.server.security;
 
+import java.util.List;
 import com.educlips.server.security.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,6 +11,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -43,24 +46,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
 
-            if (jwtUtil.validateToken(token)) {
-                String email = jwtUtil.extractEmail(token);
+            String email = jwtUtil.extractEmail(token);
 
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                email,
-                                null,
-                                Collections.emptyList()
-                        );
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                authentication.setDetails(
+                if (jwtUtil.isTokenValid(token, email)) {
+
+                    String role = jwtUtil.extractRole(token);
+
+                    List<GrantedAuthority> authorities =
+                            List.of(new SimpleGrantedAuthority("ROLE_" + role));
+
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    email,
+                                    null,
+                                    authorities
+                            );
+
+                    authentication.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
+
+            filterChain.doFilter(request, response);
         }
 
-        filterChain.doFilter(request, response);
     }
 }
+

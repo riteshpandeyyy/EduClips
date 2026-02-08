@@ -10,6 +10,9 @@ import com.educlips.server.exception.InvalidCredentialsException;
 import com.educlips.server.exception.UserNotFoundException;
 import com.educlips.server.repository.UserRepository;
 import com.educlips.server.security.JwtUtil;
+import java.util.HashMap;
+import java.util.Map;
+
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -68,10 +71,12 @@ public class UserService {
             throw new InvalidCredentialsException("Invalid password");
         }
 
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", user.getRole());
+
         String token = jwtUtil.generateToken(
-                user.getId(),
                 user.getEmail(),
-                user.getRole()
+                claims
         );
 
         return new LoginResponse(token);
