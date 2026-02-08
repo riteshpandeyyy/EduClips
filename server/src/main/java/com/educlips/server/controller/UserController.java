@@ -26,6 +26,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/test")
     public UserResponse testUser() {
         return new UserResponse(
@@ -65,5 +66,12 @@ public class UserController {
     public String creatorOnlyEndpoint() {
         return "Hello Creator";
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin")
+    public String adminOnly() {
+        return "Hello Admin";
+    }
+
 
 }
