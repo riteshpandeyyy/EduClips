@@ -2,6 +2,7 @@ package com.educlips.server.entity;
 
 import jakarta.persistence.*;
 
+
 @Entity
 @Table(name = "users")
 public class UserEntity {
@@ -20,17 +21,32 @@ public class UserEntity {
     private String password;
 
     @Column(nullable = false)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
 
     public UserEntity() {
     }
 
-    public UserEntity(String name, String email, String password, String role) {
+    public void setName(String name) {
         this.name = name;
+    }
+
+    public void setEmail(String email) {
         this.email = email;
+    }
+
+    public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setRole(UserRole role) {
         this.role = role;
     }
+
+
+
+    public UserEntity(String name, String email, String password, UserRole role) {}
 
     public Long getId() {
         return id;
@@ -48,7 +64,7 @@ public class UserEntity {
         return password;
     }
 
-    public String getRole() {
+    public UserRole getRole() {
         return role;
     }
 }

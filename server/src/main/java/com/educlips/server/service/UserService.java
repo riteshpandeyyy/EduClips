@@ -12,6 +12,8 @@ import com.educlips.server.repository.UserRepository;
 import com.educlips.server.security.JwtUtil;
 import java.util.HashMap;
 import java.util.Map;
+import com.educlips.server.entity.UserRole;
+import java.util.List;
 
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -42,12 +44,14 @@ public class UserService {
     }
 
     // Create user entity
-    UserEntity user = new UserEntity(
-            request.getName(),
-            request.getEmail(),
-            passwordEncoder.encode(request.getPassword()), 
-            request.getRole()
-    );
+    UserEntity user = new UserEntity();
+
+    user.setName(request.getName());
+    user.setEmail(request.getEmail());
+    user.setPassword(passwordEncoder.encode(request.getPassword()));
+    user.setRole(UserRole.valueOf(request.getRole())
+);
+
 
     // Save user
     UserEntity savedUser = userRepository.save(user);
@@ -57,7 +61,7 @@ public class UserService {
             savedUser.getId(),
             savedUser.getName(),
             savedUser.getEmail(),
-            savedUser.getRole()
+            savedUser.getRole().name()
     );
 }
 
@@ -72,7 +76,7 @@ public class UserService {
         }
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", user.getRole());
+        claims.put("role", user.getRole().name());
 
         String token = jwtUtil.generateToken(
                 user.getEmail(),
@@ -87,6 +91,16 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-
+    public List<UserResponse> getAllUsers() {
+    return userRepository.findAll()
+            .stream()
+            .map(user -> new UserResponse(
+                    user.getId(),
+                    user.getName(),
+                    user.getEmail(),
+                    user.getRole().name()
+            ))
+            .toList();
+}
 
 }

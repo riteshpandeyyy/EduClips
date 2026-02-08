@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.access.prepost.PreAuthorize;
+import java.util.List;
 
 
 @RestController
@@ -57,7 +58,7 @@ public class UserController {
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                user.getRole()
+                user.getRole().name()
         );
     }
 
@@ -73,5 +74,10 @@ public class UserController {
         return "Hello Admin";
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/all")
+    public List<UserResponse> getAllUsers() {
+        return userService.getAllUsers();
+    }
 
 }
