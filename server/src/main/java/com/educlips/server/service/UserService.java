@@ -107,4 +107,17 @@ public class UserService {
                     user.getRole().name()
             ));
     }
+
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+
+        return userRepository.findAll(pageable)
+                .map(user -> new UserResponse(
+                        user.getId(),
+                        user.getName(),
+                        user.getEmail(),
+                        user.getRole().name()
+                ));
+    }
+
+
 }
