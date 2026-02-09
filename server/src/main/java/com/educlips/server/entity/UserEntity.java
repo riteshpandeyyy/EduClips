@@ -2,6 +2,8 @@ package com.educlips.server.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 
 @Entity
 @Table(name = "users")
@@ -24,8 +26,24 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+
+
 
     public UserEntity() {
+        }
+
+    @PrePersist
+    protected void onCreate() {
+    this.createdAt = LocalDateTime.now();
+    this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+    this.updatedAt = LocalDateTime.now();
     }
 
     public void setName(String name) {
@@ -44,9 +62,12 @@ public class UserEntity {
         this.role = role;
     }
 
-
-
-    public UserEntity(String name, String email, String password, UserRole role) {}
+    public UserEntity(String name, String email, String password, UserRole role) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
 
     public Long getId() {
         return id;

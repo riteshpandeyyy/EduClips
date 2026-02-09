@@ -15,8 +15,12 @@ import java.util.Map;
 import com.educlips.server.entity.UserRole;
 import java.util.List;
 
-
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+
 
 
 
@@ -91,16 +95,16 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public List<UserResponse> getAllUsers() {
-    return userRepository.findAll()
-            .stream()
+    public Page<UserResponse> getAllUsers(int page, int size) {
+
+    Pageable pageable = PageRequest.of(page, size);
+
+    return userRepository.findAll(pageable)
             .map(user -> new UserResponse(
                     user.getId(),
                     user.getName(),
                     user.getEmail(),
                     user.getRole().name()
-            ))
-            .toList();
-}
-
+            ));
+    }
 }

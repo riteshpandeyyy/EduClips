@@ -34,7 +34,6 @@ public class JwtUtil {
                 .compact();
     }
 
-    // 🔹 THIS WAS MISSING
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
