@@ -41,6 +41,7 @@ public class SecurityConfig {
                     "/health",
                     "/users/signup",
                     "/users/login/**",
+                    "/users/courses/**",
                     "/users/creator/**"
                 ).permitAll()
 

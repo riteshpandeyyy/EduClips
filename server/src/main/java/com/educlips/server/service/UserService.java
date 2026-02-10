@@ -205,5 +205,25 @@ public class UserService {
         return courseRepository.save(course);
     }
 
+    public List<CourseEntity> getMyCourses(String email) {
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!user.getRole().name().equals("CREATOR")) {
+            throw new RuntimeException("Only creators can view their courses");
+        }
+
+        CreatorProfileEntity creatorProfile =
+                creatorProfileRepository.findByUser(user)
+                        .orElseThrow(() -> new RuntimeException("Creator profile not found"));
+
+        return courseRepository.findByCreator(creatorProfile);
+    }
+
+    public List<CourseEntity> getPublishedCourses() {
+        return courseRepository.findByPublishedTrue();
+    }
+
 
 }

@@ -163,5 +163,35 @@ public class UserController {
         );
     }
 
+    @PreAuthorize("hasRole('CREATOR')")
+    @GetMapping("/creator/courses")
+    public List<CourseResponse> getMyCourses(Authentication authentication) {
+
+        return userService.getMyCourses(authentication.getName())
+                .stream()
+                .map(course -> new CourseResponse(
+                        course.getId(),
+                        course.getTitle(),
+                        course.getDescription(),
+                        course.getCategory(),
+                        course.isPublished()
+                ))
+                .toList();
+    }
+
+    @GetMapping("/courses")
+    public List<CourseResponse> getPublishedCourses() {
+
+        return userService.getPublishedCourses()
+                .stream()
+                .map(course -> new CourseResponse(
+                        course.getId(),
+                        course.getTitle(),
+                        course.getDescription(),
+                        course.getCategory(),
+                        course.isPublished()
+                ))
+                .toList();
+    }
 
 }
