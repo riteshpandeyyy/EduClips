@@ -55,5 +55,12 @@ public class GlobalExceptionHandler {
             );
         }
 
-
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<Map<String, String>> handleAnyException(Exception ex) {
+            ex.printStackTrace(); // IMPORTANT
+            return ResponseEntity.status(500).body(
+                Map.of("error", ex.getClass().getName(), "message", ex.getMessage())
+            );
+        }
+        
 }

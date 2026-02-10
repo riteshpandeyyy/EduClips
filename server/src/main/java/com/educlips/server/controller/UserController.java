@@ -20,6 +20,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.RequestParam;
+import com.educlips.server.dto.CreateCreatorProfileRequest;
+import com.educlips.server.dto.CreatorProfileResponse;
+import com.educlips.server.entity.CreatorProfileEntity;
 
 
 
@@ -89,4 +92,22 @@ public class UserController {
         return userService.getAllUsers(pageable);
     }
 
+    @PreAuthorize("hasRole('CREATOR')")
+    @PostMapping("/creator/profile")
+    public CreatorProfileResponse createCreatorProfile(
+            @Valid @RequestBody CreateCreatorProfileRequest request,
+            Authentication authentication
+    ) {
+        CreatorProfileEntity profile =
+                userService.createCreatorProfile(authentication.getName(), request);
+
+        return new CreatorProfileResponse(
+                profile.getId(),
+                profile.getUser().getName(),
+                profile.getUser().getEmail(),
+                profile.getBio(),
+                profile.getExpertise(),
+                profile.getFollowersCount()
+        );
+    }
 }

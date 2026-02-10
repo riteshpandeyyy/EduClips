@@ -1,5 +1,6 @@
 package com.educlips.server.service;
 
+import com.educlips.server.dto.CreateCreatorProfileRequest;
 import com.educlips.server.dto.LoginResponse;
 import com.educlips.server.dto.SignupRequest;
 import com.educlips.server.dto.UserResponse;
@@ -8,15 +9,18 @@ import com.educlips.server.entity.UserEntity;
 import com.educlips.server.exception.EmailAlreadyExistsException;
 import com.educlips.server.exception.InvalidCredentialsException;
 import com.educlips.server.exception.UserNotFoundException;
+import com.educlips.server.repository.CreatorProfileRepository;
 import com.educlips.server.repository.UserRepository;
 import com.educlips.server.security.JwtUtil;
 import java.util.HashMap;
 import java.util.Map;
 import com.educlips.server.entity.UserRole;
 import java.util.List;
+import com.educlips.server.entity.CreatorProfileEntity;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
@@ -30,13 +34,18 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final CreatorProfileRepository creatorProfileRepository;
     
-    public UserService(UserRepository userRepository,
-                   BCryptPasswordEncoder passwordEncoder,
-                   JwtUtil jwtUtil) {
-    this.userRepository = userRepository;
-    this.passwordEncoder = passwordEncoder;
-    this.jwtUtil = jwtUtil;
+    public UserService(
+            UserRepository userRepository,
+            BCryptPasswordEncoder passwordEncoder,
+            JwtUtil jwtUtil,
+            CreatorProfileRepository creatorProfileRepository
+    ) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+        this.creatorProfileRepository = creatorProfileRepository;
     }
 
 
@@ -119,5 +128,26 @@ public class UserService {
                 ));
     }
 
+    public CreatorProfileEntity createCreatorProfile(
+        String email,
+        CreateCreatorProfileRequest request
+) {
+    UserEntity user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
+    if (!user.getRole().name().equals("CREATOR")) {
+        throw new InvalidCredentialsException("Only creators can create profile");
+    }
+
+    if (creatorProfileRepository.findByUser(user).isPresent()) {
+        throw new InvalidCredentialsException("Creator profile already exists");
+    }
+
+    CreatorProfileEntity profile = new CreatorProfileEntity();
+    profile.setUser(user);
+    profile.setBio(request.getBio());
+    profile.setExpertise(request.getExpertise());
+
+    return creatorProfileRepository.save(profile);
+}
 }
