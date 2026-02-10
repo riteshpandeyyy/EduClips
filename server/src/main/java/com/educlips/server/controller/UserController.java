@@ -8,6 +8,7 @@ import com.educlips.server.entity.UserEntity;
 import com.educlips.server.mapper.CreatorProfileMapper;
 import com.educlips.server.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -193,5 +194,45 @@ public class UserController {
                 ))
                 .toList();
     }
+
+        @PreAuthorize("hasRole('CREATOR')")
+        @PatchMapping("/creator/courses/{courseId}/publish")
+        public CourseResponse publishCourse(
+                @PathVariable Long courseId,
+                Authentication authentication
+        ) {
+        CourseEntity course = userService.publishCourse(
+                courseId,
+                authentication.getName()
+        );
+
+        return new CourseResponse(
+                course.getId(),
+                course.getTitle(),
+                course.getDescription(),
+                course.getCategory(),
+                course.isPublished()
+        );
+        }
+
+        @PreAuthorize("hasRole('CREATOR')")
+        @PatchMapping("/creator/courses/{courseId}/unpublish")
+        public CourseResponse unpublishCourse(
+                @PathVariable Long courseId,
+                Authentication authentication
+        ) {
+        CourseEntity course = userService.unpublishCourse(
+                courseId,
+                authentication.getName()
+        );
+
+        return new CourseResponse(
+                course.getId(),
+                course.getTitle(),
+                course.getDescription(),
+                course.getCategory(),
+                course.isPublished()
+        );
+        }
 
 }

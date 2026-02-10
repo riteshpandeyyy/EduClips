@@ -225,5 +225,52 @@ public class UserService {
         return courseRepository.findByPublishedTrue();
     }
 
+    public CourseEntity publishCourse(Long courseId, String email) {
 
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getRole() != UserRole.CREATOR) {
+            throw new RuntimeException("Only creators can publish courses");
+        }
+
+        CreatorProfileEntity creatorProfile =
+                creatorProfileRepository.findByUser(user)
+                        .orElseThrow(() -> new RuntimeException("Creator profile not found"));
+
+        CourseEntity course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        // Ownership check - only the creator who owns the course can publish it
+        if (!course.getCreator().getId().equals(creatorProfile.getId())) {
+            throw new RuntimeException("You do not own this course");
+        }
+
+        course.setPublished(true);
+        return courseRepository.save(course);
+    }
+
+    public CourseEntity unpublishCourse(Long courseId, String email) {
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getRole() != UserRole.CREATOR) {
+            throw new RuntimeException("Only creators can unpublish courses");
+        }
+
+        CreatorProfileEntity creatorProfile =
+                creatorProfileRepository.findByUser(user)
+                        .orElseThrow(() -> new RuntimeException("Creator profile not found"));
+
+        CourseEntity course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        if (!course.getCreator().getId().equals(creatorProfile.getId())) {
+            throw new RuntimeException("You do not own this course");
+        }
+
+        course.setPublished(false);
+        return courseRepository.save(course);
+    }
 }
