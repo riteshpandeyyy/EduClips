@@ -1,5 +1,6 @@
 package com.educlips.server.service;
 
+import com.educlips.server.dto.CreateCourseRequest;
 import com.educlips.server.dto.CreateCreatorProfileRequest;
 import com.educlips.server.dto.LoginResponse;
 import com.educlips.server.dto.SignupRequest;
@@ -9,6 +10,7 @@ import com.educlips.server.entity.UserEntity;
 import com.educlips.server.exception.EmailAlreadyExistsException;
 import com.educlips.server.exception.InvalidCredentialsException;
 import com.educlips.server.exception.UserNotFoundException;
+import com.educlips.server.repository.CourseRepository;
 import com.educlips.server.repository.CreatorProfileRepository;
 import com.educlips.server.repository.UserRepository;
 import com.educlips.server.security.JwtUtil;
@@ -16,6 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 import com.educlips.server.entity.UserRole;
 import java.util.List;
+
+import com.educlips.server.entity.CourseEntity;
 import com.educlips.server.entity.CreatorProfileEntity;
 
 import org.springframework.data.domain.PageRequest;
@@ -35,17 +39,22 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final CreatorProfileRepository creatorProfileRepository;
+    private final CourseRepository courseRepository;
+
+
     
     public UserService(
             UserRepository userRepository,
             BCryptPasswordEncoder passwordEncoder,
             JwtUtil jwtUtil,
-            CreatorProfileRepository creatorProfileRepository
+            CreatorProfileRepository creatorProfileRepository,
+            CourseRepository courseRepository
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.creatorProfileRepository = creatorProfileRepository;
+        this.courseRepository = courseRepository;
     }
 
 
@@ -167,6 +176,33 @@ public class UserService {
     public CreatorProfileEntity getCreatorProfileById(Long id) {
         return creatorProfileRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Creator profile not found"));
+    }
+
+
+    public CourseEntity createCourse(
+            String email,
+            CreateCourseRequest request
+    ) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!user.getRole().name().equals("CREATOR")) {
+            throw new RuntimeException("Only creators can create courses");
+        }
+
+        CreatorProfileEntity creatorProfile =
+                creatorProfileRepository.findByUser(user)
+                        .orElseThrow(() ->
+                                new RuntimeException("Creator profile not found"));
+
+        CourseEntity course = new CourseEntity();
+        course.setTitle(request.getTitle());
+        course.setDescription(request.getDescription());
+        course.setCategory(request.getCategory());
+        course.setPublished(false);
+        course.setCreator(creatorProfile);
+
+        return courseRepository.save(course);
     }
 
 

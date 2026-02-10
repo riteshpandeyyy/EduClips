@@ -22,8 +22,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.educlips.server.dto.CourseResponse;
+import com.educlips.server.dto.CreateCourseRequest;
 import com.educlips.server.dto.CreateCreatorProfileRequest;
 import com.educlips.server.dto.CreatorProfileResponse;
+import com.educlips.server.entity.CourseEntity;
 import com.educlips.server.entity.CreatorProfileEntity;
 
 
@@ -136,6 +140,26 @@ public class UserController {
                 profile.getBio(),
                 profile.getExpertise(),
                 profile.getFollowersCount()
+        );
+    }
+
+    CourseResponse cr = new CourseResponse(1L, "Java Basics", "Learn Java from scratch", "Programming", true);
+
+    @PreAuthorize("hasRole('CREATOR')")
+    @PostMapping("/creator/courses")
+    public CourseResponse createCourse(
+            @Valid @RequestBody CreateCourseRequest request,
+            Authentication authentication
+    ) {
+        CourseEntity course =
+                userService.createCourse(authentication.getName(), request);
+
+        return new CourseResponse(
+                course.getId(),
+                course.getTitle(),
+                course.getDescription(),
+                course.getCategory(),
+                course.isPublished()
         );
     }
 

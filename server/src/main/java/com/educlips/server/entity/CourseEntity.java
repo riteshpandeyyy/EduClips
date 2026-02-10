@@ -41,4 +41,48 @@ public class CourseEntity {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public void setPublished(boolean published) {
+        this.published = published;
+    }
+
+    public void setCreator(CreatorProfileEntity creator) {
+        this.creator = creator;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public boolean isPublished() {
+        return published;
+    }
+
+    public CreatorProfileEntity getCreator() {
+        return creator;
+    }
+
 }
