@@ -5,8 +5,10 @@ import com.educlips.server.dto.LoginResponse;
 import com.educlips.server.dto.SignupRequest;
 import com.educlips.server.dto.UserResponse;
 import com.educlips.server.entity.UserEntity;
+import com.educlips.server.mapper.CreatorProfileMapper;
 import com.educlips.server.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,10 +33,6 @@ import com.educlips.server.entity.CreatorProfileEntity;
 public class UserController {
 
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/test")
@@ -110,4 +108,36 @@ public class UserController {
                 profile.getFollowersCount()
         );
     }
+
+    
+    private final CreatorProfileMapper creatorProfileMapper;
+    
+     public UserController(UserService userService, CreatorProfileMapper creatorProfileMapper) {
+        this.userService = userService;
+        this.creatorProfileMapper = creatorProfileMapper;
+    }
+
+    @PreAuthorize("hasRole('CREATOR')")
+    @GetMapping("/creator/profile")
+    public CreatorProfileResponse getMyCreatorProfile(Authentication authentication) {
+        return creatorProfileMapper.toResponse(
+                userService.getMyCreatorProfile(authentication.getName())
+        );
+    }
+
+    @GetMapping("/creator/{id}")
+    public CreatorProfileResponse getCreatorProfile(@PathVariable Long id) {
+        CreatorProfileEntity profile = userService.getCreatorProfileById(id);
+
+        return new CreatorProfileResponse(
+                profile.getId(),
+                profile.getUser().getName(),
+                profile.getUser().getEmail(),
+                profile.getBio(),
+                profile.getExpertise(),
+                profile.getFollowersCount()
+        );
+    }
+
+
 }

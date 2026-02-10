@@ -36,6 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Skip public endpoints
         if (path.startsWith("/users/signup")
                 || path.startsWith("/users/login")
+                || path.startsWith("/users/creator")
                 || path.startsWith("/health")) {
             filterChain.doFilter(request, response);
             return;

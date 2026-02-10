@@ -129,25 +129,45 @@ public class UserService {
     }
 
     public CreatorProfileEntity createCreatorProfile(
-        String email,
-        CreateCreatorProfileRequest request
-) {
-    UserEntity user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            String email,
+            CreateCreatorProfileRequest request
+    ) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-    if (!user.getRole().name().equals("CREATOR")) {
-        throw new InvalidCredentialsException("Only creators can create profile");
+        if (!user.getRole().name().equals("CREATOR")) {
+            throw new InvalidCredentialsException("Only creators can create profile");
+        }
+
+        if (creatorProfileRepository.findByUser(user).isPresent()) {
+            throw new InvalidCredentialsException("Creator profile already exists");
+        }
+
+        CreatorProfileEntity profile = new CreatorProfileEntity();
+        profile.setUser(user);
+        profile.setBio(request.getBio());
+        profile.setExpertise(request.getExpertise());
+
+        return creatorProfileRepository.save(profile);
     }
 
-    if (creatorProfileRepository.findByUser(user).isPresent()) {
-        throw new InvalidCredentialsException("Creator profile already exists");
+    public CreatorProfileEntity getMyCreatorProfile(String email) {
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getRole() != UserRole.CREATOR) {
+            throw new RuntimeException("Only creators have profiles");
+        }
+
+        return creatorProfileRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Creator profile not found"));
     }
 
-    CreatorProfileEntity profile = new CreatorProfileEntity();
-    profile.setUser(user);
-    profile.setBio(request.getBio());
-    profile.setExpertise(request.getExpertise());
+    public CreatorProfileEntity getCreatorProfileById(Long id) {
+        return creatorProfileRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Creator profile not found"));
+    }
 
-    return creatorProfileRepository.save(profile);
-}
+
 }

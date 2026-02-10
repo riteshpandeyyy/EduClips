@@ -40,7 +40,8 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/health",
                     "/users/signup",
-                    "/users/login/**"
+                    "/users/login/**",
+                    "/users/creator/**"
                 ).permitAll()
 
                 .anyRequest().authenticated()

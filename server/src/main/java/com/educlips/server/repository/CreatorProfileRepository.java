@@ -10,4 +10,5 @@ public interface CreatorProfileRepository
         extends JpaRepository<CreatorProfileEntity, Long> {
 
     Optional<CreatorProfileEntity> findByUser(UserEntity user);
+    Optional<CreatorProfileEntity> findById(Long id);
 }
