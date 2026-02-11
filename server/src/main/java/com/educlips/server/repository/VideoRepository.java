@@ -9,4 +9,6 @@ import java.util.List;
 public interface VideoRepository extends JpaRepository<VideoEntity, Long> {
 
     List<VideoEntity> findByCourseOrderByOrderIndexAsc(CourseEntity course);
+    List<VideoEntity> findByCourseAndPublishedTrueOrderByOrderIndexAsc(
+        CourseEntity course);
 }

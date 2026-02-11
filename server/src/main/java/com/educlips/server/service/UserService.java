@@ -321,4 +321,39 @@ public class UserService {
 
         return videoRepository.save(video);
     }
+
+    public List<VideoEntity> getVideosForCreator(
+            String email,
+            Long courseId
+    ) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!user.getRole().name().equals("CREATOR")) {
+            throw new RuntimeException("Only creators can view course videos");
+        }
+
+        CreatorProfileEntity creatorProfile =
+                creatorProfileRepository.findByUser(user)
+                        .orElseThrow(() -> new RuntimeException("Creator profile not found"));
+
+        CourseEntity course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        // Ownership check
+        if (!course.getCreator().getId().equals(creatorProfile.getId())) {
+            throw new RuntimeException("You do not own this course");
+        }
+
+        return videoRepository.findByCourseOrderByOrderIndexAsc(course);
+    }
+
+    public List<VideoEntity> getPublishedVideosForCourse(Long courseId) {
+
+        CourseEntity course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        return videoRepository
+                .findByCourseAndPublishedTrueOrderByOrderIndexAsc(course);
+    }
 }

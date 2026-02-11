@@ -252,4 +252,42 @@ public class UserController {
         );
         }
 
+        @PreAuthorize("hasRole('CREATOR')")
+        @GetMapping("/creator/courses/{courseId}/videos")
+        public List<VideoResponse> getVideosForCreator(
+                @PathVariable Long courseId,
+                Authentication authentication
+        ) {
+        return userService
+                .getVideosForCreator(authentication.getName(), courseId)
+                .stream()
+                .map(video -> new VideoResponse(
+                        video.getId(),
+                        video.getTitle(),
+                        video.getDescription(),
+                        video.getVideoUrl(),
+                        video.getCourse().getId(),
+                        video.isPublished()
+                ))
+                .toList();
+        }
+
+        @GetMapping("/courses/{courseId}/videos")
+        public List<VideoResponse> getPublishedVideos(
+                @PathVariable Long courseId
+        ) {
+        return userService
+                .getPublishedVideosForCourse(courseId)
+                .stream()
+                .map(video -> new VideoResponse(
+                        video.getId(),
+                        video.getTitle(),
+                        video.getDescription(),
+                        video.getVideoUrl(),
+                        video.getCourse().getId(),
+                        video.isPublished()
+                ))
+                .toList();
+        }
+
 }
