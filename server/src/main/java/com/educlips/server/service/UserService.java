@@ -2,6 +2,7 @@ package com.educlips.server.service;
 
 import com.educlips.server.dto.CreateCourseRequest;
 import com.educlips.server.dto.CreateCreatorProfileRequest;
+import com.educlips.server.dto.CreateVideoRequest;
 import com.educlips.server.dto.LoginResponse;
 import com.educlips.server.dto.SignupRequest;
 import com.educlips.server.dto.UserResponse;
@@ -17,6 +18,9 @@ import com.educlips.server.security.JwtUtil;
 import java.util.HashMap;
 import java.util.Map;
 import com.educlips.server.entity.UserRole;
+import com.educlips.server.entity.VideoEntity;
+import com.educlips.server.repository.VideoRepository;
+
 import java.util.List;
 
 import com.educlips.server.entity.CourseEntity;
@@ -32,6 +36,7 @@ import org.springframework.data.domain.PageRequest;
 
 
 
+
 @Service
 public class UserService {
 
@@ -40,6 +45,8 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final CreatorProfileRepository creatorProfileRepository;
     private final CourseRepository courseRepository;
+    private final VideoRepository videoRepository;
+    
 
 
     
@@ -48,13 +55,15 @@ public class UserService {
             BCryptPasswordEncoder passwordEncoder,
             JwtUtil jwtUtil,
             CreatorProfileRepository creatorProfileRepository,
-            CourseRepository courseRepository
+            CourseRepository courseRepository,
+            VideoRepository videoRepository
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
         this.creatorProfileRepository = creatorProfileRepository;
         this.courseRepository = courseRepository;
+        this.videoRepository = videoRepository;
     }
 
 
@@ -272,5 +281,41 @@ public class UserService {
 
         course.setPublished(false);
         return courseRepository.save(course);
+    }
+
+    public VideoEntity addVideoToCourse(
+            String email,
+            CreateVideoRequest request
+    ) {
+        // 1. Get user
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!user.getRole().name().equals("CREATOR")) {
+            throw new RuntimeException("Only creators can add videos");
+        }
+
+        // 2. Get creator profile
+        CreatorProfileEntity creatorProfile =
+                creatorProfileRepository.findByUser(user)
+                        .orElseThrow(() -> new RuntimeException("Creator profile not found"));
+
+        // 3. Get course
+        CourseEntity course = courseRepository.findById(request.getCourseId())
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        // 4. Ownership check
+        if (!course.getCreator().getId().equals(creatorProfile.getId())) {
+            throw new RuntimeException("You do not own this course");
+        }
+
+        // 5. Create video
+        VideoEntity video = new VideoEntity();
+        video.setTitle(request.getTitle());
+        video.setDescription(request.getDescription());
+        video.setVideoUrl(request.getVideoUrl());
+        video.setCourse(course);
+
+        return videoRepository.save(video);
     }
 }

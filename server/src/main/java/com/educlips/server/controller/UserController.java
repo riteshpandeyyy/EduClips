@@ -4,7 +4,9 @@ import com.educlips.server.dto.LoginRequest;
 import com.educlips.server.dto.LoginResponse;
 import com.educlips.server.dto.SignupRequest;
 import com.educlips.server.dto.UserResponse;
+import com.educlips.server.dto.VideoResponse;
 import com.educlips.server.entity.UserEntity;
+import com.educlips.server.entity.VideoEntity;
 import com.educlips.server.mapper.CreatorProfileMapper;
 import com.educlips.server.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.educlips.server.dto.CourseResponse;
 import com.educlips.server.dto.CreateCourseRequest;
 import com.educlips.server.dto.CreateCreatorProfileRequest;
+import com.educlips.server.dto.CreateVideoRequest;
 import com.educlips.server.dto.CreatorProfileResponse;
 import com.educlips.server.entity.CourseEntity;
 import com.educlips.server.entity.CreatorProfileEntity;
@@ -232,6 +235,28 @@ public class UserController {
                 course.getDescription(),
                 course.getCategory(),
                 course.isPublished()
+        );
+        }
+
+        @PreAuthorize("hasRole('CREATOR')")
+        @PostMapping("/creator/videos")
+        public VideoResponse addVideo(
+                @Valid @RequestBody CreateVideoRequest request,
+                Authentication authentication
+        ) {
+
+        VideoEntity video = userService.addVideoToCourse(
+                authentication.getName(),
+                request
+        );
+
+        return new VideoResponse(
+                video.getId(),
+                video.getTitle(),
+                video.getDescription(),
+                video.getVideoUrl(),
+                video.getCourse().getId(),
+                video.isPublished()
         );
         }
 
