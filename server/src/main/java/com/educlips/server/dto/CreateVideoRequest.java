@@ -8,38 +8,46 @@ public class CreateVideoRequest {
     @NotBlank
     private String title;
 
+    @NotBlank
     private String description;
 
     @NotBlank
     private String videoUrl;
 
     @NotNull
-    private Long courseId;
+    private Integer orderIndex;
 
-    public CreateVideoRequest() {
-    }
-
-    public CreateVideoRequest(String title, String description, String videoUrl, Long courseId) {
-        this.title = title;
-        this.description = description;
-        this.videoUrl = videoUrl;
-        this.courseId = courseId;
-    }
+    // getters & setters
 
     public String getTitle() {
         return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public String getVideoUrl() {
         return videoUrl;
     }
 
-    public Long getCourseId() {
-        return courseId;
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
     }
 
+    public Integer getOrderIndex() {
+        return orderIndex;
+    }
+
+    public void setOrderIndex(Integer orderIndex) {
+        this.orderIndex = orderIndex;
+    }
 }

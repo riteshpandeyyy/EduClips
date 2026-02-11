@@ -239,24 +239,16 @@ public class UserController {
         }
 
         @PreAuthorize("hasRole('CREATOR')")
-        @PostMapping("/creator/videos")
-        public VideoResponse addVideo(
+        @PostMapping("/creator/courses/{courseId}/videos")
+        public VideoEntity addVideoToCourse(
+                @PathVariable Long courseId,
                 @Valid @RequestBody CreateVideoRequest request,
                 Authentication authentication
         ) {
-
-        VideoEntity video = userService.addVideoToCourse(
+        return userService.addVideoToCourse(
                 authentication.getName(),
+                courseId,
                 request
-        );
-
-        return new VideoResponse(
-                video.getId(),
-                video.getTitle(),
-                video.getDescription(),
-                video.getVideoUrl(),
-                video.getCourse().getId(),
-                video.isPublished()
         );
         }
 

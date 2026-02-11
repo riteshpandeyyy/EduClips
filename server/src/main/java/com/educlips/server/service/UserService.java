@@ -285,6 +285,7 @@ public class UserService {
 
     public VideoEntity addVideoToCourse(
             String email,
+            Long courseId,
             CreateVideoRequest request
     ) {
         // 1. Get user
@@ -301,7 +302,7 @@ public class UserService {
                         .orElseThrow(() -> new RuntimeException("Creator profile not found"));
 
         // 3. Get course
-        CourseEntity course = courseRepository.findById(request.getCourseId())
+        CourseEntity course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
         // 4. Ownership check
@@ -314,6 +315,8 @@ public class UserService {
         video.setTitle(request.getTitle());
         video.setDescription(request.getDescription());
         video.setVideoUrl(request.getVideoUrl());
+        video.setOrderIndex(request.getOrderIndex());
+        video.setPublished(false);
         video.setCourse(course);
 
         return videoRepository.save(video);

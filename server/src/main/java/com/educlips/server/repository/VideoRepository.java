@@ -8,7 +8,5 @@ import java.util.List;
 
 public interface VideoRepository extends JpaRepository<VideoEntity, Long> {
 
-    List<VideoEntity> findByCourse(CourseEntity course);
-
-    List<VideoEntity> findByPublishedTrue();
+    List<VideoEntity> findByCourseOrderByOrderIndexAsc(CourseEntity course);
 }
