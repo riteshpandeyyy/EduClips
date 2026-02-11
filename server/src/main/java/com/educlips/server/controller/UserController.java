@@ -290,4 +290,45 @@ public class UserController {
                 .toList();
         }
 
+        @PreAuthorize("hasRole('CREATOR')")
+        @PatchMapping("/creator/videos/{videoId}/publish")
+        public VideoResponse publishVideo(
+                @PathVariable Long videoId,
+                Authentication authentication
+        ) {
+        VideoEntity video = userService.publishVideo(
+                authentication.getName(),
+                videoId
+        );
+
+        return new VideoResponse(
+                video.getId(),
+                video.getTitle(),
+                video.getDescription(),
+                video.getVideoUrl(),
+                video.getCourse().getId(),
+                video.isPublished()
+        );
+        }
+
+        @PreAuthorize("hasRole('CREATOR')")
+        @PatchMapping("/creator/videos/{videoId}/unpublish")
+        public VideoResponse unpublishVideo(
+                @PathVariable Long videoId,
+                Authentication authentication
+        ) {
+        VideoEntity video = userService.unpublishVideo(
+                authentication.getName(),
+                videoId
+        );
+
+        return new VideoResponse(
+                video.getId(),
+                video.getTitle(),
+                video.getDescription(),
+                video.getVideoUrl(),
+                video.getCourse().getId(),
+                video.isPublished()
+        );
+        }
 }

@@ -356,4 +356,60 @@ public class UserService {
         return videoRepository
                 .findByCourseAndPublishedTrueOrderByOrderIndexAsc(course);
     }
+
+    public VideoEntity publishVideo(
+            String email,
+            Long videoId
+    ) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!user.getRole().name().equals("CREATOR")) {
+            throw new RuntimeException("Only creators can publish videos");
+        }
+
+        CreatorProfileEntity creatorProfile =
+                creatorProfileRepository.findByUser(user)
+                        .orElseThrow(() -> new RuntimeException("Creator profile not found"));
+
+        VideoEntity video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new RuntimeException("Video not found"));
+
+        // Ownership check via course
+        if (!video.getCourse().getCreator().getId()
+                .equals(creatorProfile.getId())) {
+            throw new RuntimeException("You do not own this video");
+        }
+
+        video.setPublished(true);
+        return videoRepository.save(video);
+    }
+
+    public VideoEntity unpublishVideo(
+            String email,
+            Long videoId
+    ) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!user.getRole().name().equals("CREATOR")) {
+            throw new RuntimeException("Only creators can unpublish videos");
+        }
+
+        CreatorProfileEntity creatorProfile =
+                creatorProfileRepository.findByUser(user)
+                        .orElseThrow(() -> new RuntimeException("Creator profile not found"));
+
+        VideoEntity video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new RuntimeException("Video not found"));
+
+        if (!video.getCourse().getCreator().getId()
+                .equals(creatorProfile.getId())) {
+            throw new RuntimeException("You do not own this video");
+        }
+
+        video.setPublished(false);
+        return videoRepository.save(video);
+    }
+
 }
