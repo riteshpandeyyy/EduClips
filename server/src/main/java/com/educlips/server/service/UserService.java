@@ -6,6 +6,8 @@ import com.educlips.server.dto.CreateVideoRequest;
 import com.educlips.server.dto.LoginResponse;
 import com.educlips.server.dto.SignupRequest;
 import com.educlips.server.dto.UserResponse;
+import com.educlips.server.dto.VideoResponse;
+
 import org.springframework.stereotype.Service;
 import com.educlips.server.entity.UserEntity;
 import com.educlips.server.exception.EmailAlreadyExistsException;
@@ -417,12 +419,46 @@ public class UserService {
         return videoRepository.save(video);
     }
 
-    public Page<VideoEntity> getGlobalFeed(int page, int size) {
+    public Page<VideoResponse> getGlobalFeedWithLikes(
+                String email,
+                int page,
+                int size
+        ) {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        return videoRepository
-                .findByPublishedTrueOrderByIdDesc(pageable);
+        Page<VideoEntity> videos =
+                videoRepository.findByPublishedTrueOrderByIdDesc(pageable);
+
+        UserEntity user = null;
+        if (email != null) {
+                user = userRepository.findByEmail(email).orElse(null);
+        }
+
+        UserEntity finalUser = user;
+
+        return videos.map(video -> {
+
+                long likeCount = videoLikeRepository.countByVideo(video);
+
+                boolean liked = false;
+                if (finalUser != null) {
+                liked = videoLikeRepository
+                        .findByUserAndVideo(finalUser, video)
+                        .isPresent();
+                }
+
+                return new VideoResponse(
+                        video.getId(),
+                        video.getTitle(),
+                        video.getDescription(),
+                        video.getVideoUrl(),
+                        video.getCourse().getId(),
+                        video.isPublished(),
+                        likeCount,
+                        liked
+                );
+        });
         }
 
     public void likeVideo(String email, Long videoId) {
@@ -443,6 +479,21 @@ public class UserService {
         like.setVideo(video);
 
         videoLikeRepository.save(like);
-        }
+    }
+    
+    public void unlikeVideo(String email, Long videoId) {
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        VideoEntity video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new RuntimeException("Video not found"));
+
+        VideoLikeEntity like = videoLikeRepository
+                .findByUserAndVideo(user, video)
+                .orElseThrow(() -> new RuntimeException("You have not liked this video"));
+
+        videoLikeRepository.delete(like);
+    }
 
 }

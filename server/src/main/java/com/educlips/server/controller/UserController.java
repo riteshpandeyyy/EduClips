@@ -267,7 +267,9 @@ public class UserController {
                         video.getDescription(),
                         video.getVideoUrl(),
                         video.getCourse().getId(),
-                        video.isPublished()
+                        video.isPublished(),
+                        0L,
+                        false
                 ))
                 .toList();
         }
@@ -285,7 +287,9 @@ public class UserController {
                         video.getDescription(),
                         video.getVideoUrl(),
                         video.getCourse().getId(),
-                        video.isPublished()
+                        video.isPublished(),
+                        0L,
+                        false
                 ))
                 .toList();
         }
@@ -307,7 +311,9 @@ public class UserController {
                         video.getDescription(),
                         video.getVideoUrl(),
                         video.getCourse().getId(),
-                        video.isPublished()
+                        video.isPublished(),
+                        0L,
+                        false
                 );
         }
 
@@ -328,26 +334,26 @@ public class UserController {
                         video.getDescription(),
                         video.getVideoUrl(),
                         video.getCourse().getId(),
-                        video.isPublished()
+                        video.isPublished(),
+                        0L,
+                        false
                 );
         }
 
         @GetMapping("/feed")
         public Page<VideoResponse> getGlobalFeed(
-                        @RequestParam(defaultValue = "0") int page,
-                        @RequestParam(defaultValue = "5") int size
-                ) {
+                @RequestParam(defaultValue = "0") int page,
+                @RequestParam(defaultValue = "5") int size,
+                Authentication authentication
+        ) {
 
-                return userService.getGlobalFeed(page, size)
-                        .map(video -> new VideoResponse(
-                                video.getId(),
-                                video.getTitle(),
-                                video.getDescription(),
-                                video.getVideoUrl(),
-                                video.getCourse().getId(),
-                                video.isPublished()
-                        ));
-                }
+        String email = null;
+        if (authentication != null) {
+                email = authentication.getName();
+        }
+
+        return userService.getGlobalFeedWithLikes(email, page, size);
+        }
 
         @PostMapping("/videos/{videoId}/like")
         public String likeVideo(
@@ -356,5 +362,14 @@ public class UserController {
                         ) {
                         userService.likeVideo(authentication.getName(), videoId);
                         return "Video liked successfully";
+        }
+
+        @PostMapping("/videos/{videoId}/unlike")
+        public String unlikeVideo(
+                @PathVariable Long videoId,
+                Authentication authentication
+        ) {
+        userService.unlikeVideo(authentication.getName(), videoId);
+        return "Video unliked successfully";
         }
 }

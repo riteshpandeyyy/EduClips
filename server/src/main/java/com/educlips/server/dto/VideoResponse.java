@@ -8,6 +8,8 @@ public class VideoResponse {
     private String videoUrl;
     private Long courseId;
     private boolean published;
+    private long likeCount;
+    private boolean likedByCurrentUser;
 
     public VideoResponse(
             Long id,
@@ -15,7 +17,9 @@ public class VideoResponse {
             String description,
             String videoUrl,
             Long courseId,
-            boolean published
+            boolean published,
+            long likeCount,
+            boolean likedByCurrentUser
     ) {
         this.id = id;
         this.title = title;
@@ -23,6 +27,8 @@ public class VideoResponse {
         this.videoUrl = videoUrl;
         this.courseId = courseId;
         this.published = published;
+        this.likeCount = likeCount;
+        this.likedByCurrentUser = likedByCurrentUser;
     }
 
     public Long getId() {
@@ -47,5 +53,13 @@ public class VideoResponse {
 
     public boolean isPublished() {
         return published;
+    }
+
+    public long getLikeCount() {
+        return likeCount;
+    }
+
+    public boolean isLikedByCurrentUser() {
+        return likedByCurrentUser;
     }
 }
