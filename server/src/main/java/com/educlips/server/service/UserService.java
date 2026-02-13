@@ -24,10 +24,12 @@ import com.educlips.server.entity.VideoEntity;
 import com.educlips.server.entity.VideoLikeEntity;
 import com.educlips.server.repository.VideoRepository;
 import com.educlips.server.repository.VideoLikeRepository;
+import com.educlips.server.repository.CreatorFollowRepository;
 
 import java.util.List;
 
 import com.educlips.server.entity.CourseEntity;
+import com.educlips.server.entity.CreatorFollowEntity;
 import com.educlips.server.entity.CreatorProfileEntity;
 
 import org.springframework.data.domain.PageRequest;
@@ -51,6 +53,7 @@ public class UserService {
     private final CourseRepository courseRepository;
     private final VideoRepository videoRepository;
     private final VideoLikeRepository videoLikeRepository;
+    private final CreatorFollowRepository creatorFollowRepository;
     
 
 
@@ -62,7 +65,8 @@ public class UserService {
             CreatorProfileRepository creatorProfileRepository,
             CourseRepository courseRepository,
             VideoRepository videoRepository,
-            VideoLikeRepository videoLikeRepository
+            VideoLikeRepository videoLikeRepository,
+            CreatorFollowRepository creatorFollowRepository
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -71,6 +75,7 @@ public class UserService {
         this.courseRepository = courseRepository;
         this.videoRepository = videoRepository;
         this.videoLikeRepository = videoLikeRepository;
+        this.creatorFollowRepository = creatorFollowRepository;
     }
 
 
@@ -480,7 +485,7 @@ public class UserService {
 
         videoLikeRepository.save(like);
     }
-    
+
     public void unlikeVideo(String email, Long videoId) {
 
         UserEntity user = userRepository.findByEmail(email)
@@ -494,6 +499,44 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("You have not liked this video"));
 
         videoLikeRepository.delete(like);
+    }
+
+    public void followCreator(String email, Long creatorId) {
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        CreatorProfileEntity creator = creatorProfileRepository.findById(creatorId)
+                .orElseThrow(() -> new RuntimeException("Creator not found"));
+
+        if (creatorFollowRepository.findByUserAndCreator(user, creator).isPresent()) {
+                throw new RuntimeException("Already following this creator");
+        }
+
+        if (creator.getUser().getId().equals(user.getId())) {
+                throw new RuntimeException("You cannot follow yourself");
+        }
+
+        CreatorFollowEntity follow = new CreatorFollowEntity();
+        follow.setUser(user);
+        follow.setCreator(creator);
+
+        creatorFollowRepository.save(follow);
+    }
+
+    public void unfollowCreator(String email, Long creatorId) {
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        CreatorProfileEntity creator = creatorProfileRepository.findById(creatorId)
+                .orElseThrow(() -> new RuntimeException("Creator not found"));
+
+        CreatorFollowEntity follow = creatorFollowRepository
+                .findByUserAndCreator(user, creator)
+                .orElseThrow(() -> new RuntimeException("Not following this creator"));
+
+        creatorFollowRepository.delete(follow);
     }
 
 }

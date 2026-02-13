@@ -372,4 +372,22 @@ public class UserController {
         userService.unlikeVideo(authentication.getName(), videoId);
         return "Video unliked successfully";
         }
+
+        @PostMapping("/creators/{creatorId}/follow")
+        public String followCreator(
+                @PathVariable Long creatorId,
+                Authentication authentication
+        ) {
+        userService.followCreator(authentication.getName(), creatorId);
+        return "Followed successfully";
+        }
+
+        @PostMapping("/creators/{creatorId}/unfollow")
+        public String unfollowCreator(
+                @PathVariable Long creatorId,
+                Authentication authentication
+        ) {
+        userService.unfollowCreator(authentication.getName(), creatorId);
+        return "Unfollowed successfully";
+        }
 }
