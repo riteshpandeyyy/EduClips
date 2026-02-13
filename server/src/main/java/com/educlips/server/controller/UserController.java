@@ -293,42 +293,68 @@ public class UserController {
         @PreAuthorize("hasRole('CREATOR')")
         @PatchMapping("/creator/videos/{videoId}/publish")
         public VideoResponse publishVideo(
-                @PathVariable Long videoId,
-                Authentication authentication
-        ) {
-        VideoEntity video = userService.publishVideo(
-                authentication.getName(),
-                videoId
-        );
+                        @PathVariable Long videoId,
+                        Authentication authentication
+                ) {
+                VideoEntity video = userService.publishVideo(
+                        authentication.getName(),
+                        videoId
+                );
 
-        return new VideoResponse(
-                video.getId(),
-                video.getTitle(),
-                video.getDescription(),
-                video.getVideoUrl(),
-                video.getCourse().getId(),
-                video.isPublished()
-        );
+                return new VideoResponse(
+                        video.getId(),
+                        video.getTitle(),
+                        video.getDescription(),
+                        video.getVideoUrl(),
+                        video.getCourse().getId(),
+                        video.isPublished()
+                );
         }
 
         @PreAuthorize("hasRole('CREATOR')")
         @PatchMapping("/creator/videos/{videoId}/unpublish")
         public VideoResponse unpublishVideo(
-                @PathVariable Long videoId,
-                Authentication authentication
-        ) {
-        VideoEntity video = userService.unpublishVideo(
-                authentication.getName(),
-                videoId
-        );
+                        @PathVariable Long videoId,
+                        Authentication authentication
+                ) {
+                VideoEntity video = userService.unpublishVideo(
+                        authentication.getName(),
+                        videoId
+                );
 
-        return new VideoResponse(
-                video.getId(),
-                video.getTitle(),
-                video.getDescription(),
-                video.getVideoUrl(),
-                video.getCourse().getId(),
-                video.isPublished()
-        );
+                return new VideoResponse(
+                        video.getId(),
+                        video.getTitle(),
+                        video.getDescription(),
+                        video.getVideoUrl(),
+                        video.getCourse().getId(),
+                        video.isPublished()
+                );
+        }
+
+        @GetMapping("/feed")
+        public Page<VideoResponse> getGlobalFeed(
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "5") int size
+                ) {
+
+                return userService.getGlobalFeed(page, size)
+                        .map(video -> new VideoResponse(
+                                video.getId(),
+                                video.getTitle(),
+                                video.getDescription(),
+                                video.getVideoUrl(),
+                                video.getCourse().getId(),
+                                video.isPublished()
+                        ));
+                }
+
+        @PostMapping("/videos/{videoId}/like")
+        public String likeVideo(
+                                @PathVariable Long videoId,
+                                Authentication authentication
+                        ) {
+                        userService.likeVideo(authentication.getName(), videoId);
+                        return "Video liked successfully";
         }
 }

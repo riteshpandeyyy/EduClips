@@ -19,7 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 import com.educlips.server.entity.UserRole;
 import com.educlips.server.entity.VideoEntity;
+import com.educlips.server.entity.VideoLikeEntity;
 import com.educlips.server.repository.VideoRepository;
+import com.educlips.server.repository.VideoLikeRepository;
 
 import java.util.List;
 
@@ -46,6 +48,7 @@ public class UserService {
     private final CreatorProfileRepository creatorProfileRepository;
     private final CourseRepository courseRepository;
     private final VideoRepository videoRepository;
+    private final VideoLikeRepository videoLikeRepository;
     
 
 
@@ -56,7 +59,8 @@ public class UserService {
             JwtUtil jwtUtil,
             CreatorProfileRepository creatorProfileRepository,
             CourseRepository courseRepository,
-            VideoRepository videoRepository
+            VideoRepository videoRepository,
+            VideoLikeRepository videoLikeRepository
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -64,6 +68,7 @@ public class UserService {
         this.creatorProfileRepository = creatorProfileRepository;
         this.courseRepository = courseRepository;
         this.videoRepository = videoRepository;
+        this.videoLikeRepository = videoLikeRepository;
     }
 
 
@@ -411,5 +416,33 @@ public class UserService {
         video.setPublished(false);
         return videoRepository.save(video);
     }
+
+    public Page<VideoEntity> getGlobalFeed(int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return videoRepository
+                .findByPublishedTrueOrderByIdDesc(pageable);
+        }
+
+    public void likeVideo(String email, Long videoId) {
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        VideoEntity video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new RuntimeException("Video not found"));
+
+        // Prevent duplicate like
+        if (videoLikeRepository.findByUserAndVideo(user, video).isPresent()) {
+                throw new RuntimeException("You already liked this video");
+        }
+
+        VideoLikeEntity like = new VideoLikeEntity();
+        like.setUser(user);
+        like.setVideo(video);
+
+        videoLikeRepository.save(like);
+        }
 
 }
