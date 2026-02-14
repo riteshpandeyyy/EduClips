@@ -25,9 +25,17 @@ public class VideoEntity {
     @Column(nullable = false)
     private boolean published = false;
 
+    @Column(nullable = false)
+    private java.time.LocalDateTime createdAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private CourseEntity course;
+
+    @PrePersist
+    public void prePersist() {    
+        this.createdAt = java.time.LocalDateTime.now();
+    }
 
     //GETTERS
 
@@ -57,6 +65,10 @@ public class VideoEntity {
 
     public CourseEntity getCourse() {
         return course;
+    }
+
+    public java.time.LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
     //SETTERS

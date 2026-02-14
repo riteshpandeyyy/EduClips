@@ -269,7 +269,8 @@ public class UserController {
                         video.getCourse().getId(),
                         video.isPublished(),
                         0L,
-                        false
+                        false,
+                        0
                 ))
                 .toList();
         }
@@ -289,7 +290,8 @@ public class UserController {
                         video.getCourse().getId(),
                         video.isPublished(),
                         0L,
-                        false
+                        false,
+                        0
                 ))
                 .toList();
         }
@@ -313,7 +315,8 @@ public class UserController {
                         video.getCourse().getId(),
                         video.isPublished(),
                         0L,
-                        false
+                        false,
+                        0
                 );
         }
 
@@ -336,12 +339,13 @@ public class UserController {
                         video.getCourse().getId(),
                         video.isPublished(),
                         0L,
-                        false
+                        false,
+                        0
                 );
         }
 
         @GetMapping("/feed")
-        public Page<VideoResponse> getGlobalFeed(
+        public List<VideoResponse> getFeed(
                 @RequestParam(defaultValue = "0") int page,
                 @RequestParam(defaultValue = "5") int size,
                 Authentication authentication
@@ -352,7 +356,7 @@ public class UserController {
                 email = authentication.getName();
         }
 
-        return userService.getGlobalFeedWithLikes(email, page, size);
+        return userService.getPersonalisedFeed(email, page, size);
         }
 
         @PostMapping("/videos/{videoId}/like")

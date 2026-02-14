@@ -10,6 +10,7 @@ public class VideoResponse {
     private boolean published;
     private long likeCount;
     private boolean likedByCurrentUser;
+    private int score;
 
     public VideoResponse(
             Long id,
@@ -19,7 +20,8 @@ public class VideoResponse {
             Long courseId,
             boolean published,
             long likeCount,
-            boolean likedByCurrentUser
+            boolean likedByCurrentUser,
+            int score
     ) {
         this.id = id;
         this.title = title;
@@ -29,6 +31,7 @@ public class VideoResponse {
         this.published = published;
         this.likeCount = likeCount;
         this.likedByCurrentUser = likedByCurrentUser;
+        this.score = score;
     }
 
     public Long getId() {
@@ -61,5 +64,9 @@ public class VideoResponse {
 
     public boolean isLikedByCurrentUser() {
         return likedByCurrentUser;
+    }
+
+    public int getScore() {
+        return score;
     }
 }
