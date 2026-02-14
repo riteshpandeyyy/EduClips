@@ -424,82 +424,92 @@ public class UserService {
         return videoRepository.save(video);
     }
 
-    public List<VideoResponse> getPersonalisedFeed(
-        String email,
-        int page,
-        int size
-) {
+     public List<VideoResponse> getPersonalisedFeed(
+                String email,
+                int page,
+                int size
+        ) {
 
-    Pageable pageable = PageRequest.of(page, size);
+        // Fetch larger batch
+        List<VideoEntity> allVideos =
+                videoRepository.findByPublishedTrueOrderByIdDesc();
 
-    Page<VideoEntity> videos =
-            videoRepository.findByPublishedTrueOrderByIdDesc(pageable);
+        UserEntity user = null;
+        if (email != null) {
+                user = userRepository.findByEmail(email).orElse(null);
+        }
 
-    UserEntity user = null;
-    if (email != null) {
-        user = userRepository.findByEmail(email).orElse(null);
+        UserEntity finalUser = user;
+
+        // Score all
+        List<VideoResponse> scoredVideos = allVideos.stream().map(video -> {
+
+                long likeCount = videoLikeRepository.countByVideo(video);
+
+                boolean liked = false;
+                boolean followedCreator = false;
+
+                if (finalUser != null) {
+                liked = videoLikeRepository
+                        .findByUserAndVideo(finalUser, video)
+                        .isPresent();
+
+                followedCreator = creatorFollowRepository
+                        .findByUserAndCreator(
+                                finalUser,
+                                video.getCourse().getCreator()
+                        )
+                        .isPresent();
+                }
+
+                int score = 0;
+
+                if (followedCreator) score += 40;
+
+                score += (int) (likeCount * 3);
+
+                long hoursOld =
+                        java.time.Duration.between(
+                                video.getCreatedAt(),
+                                java.time.LocalDateTime.now()
+                        ).toHours();
+
+                if (hoursOld <= 24) score += 30;
+                else if (hoursOld <= 72) score += 15;
+                else if (hoursOld <= 168) score += 5;
+
+                long followerCount =
+                        creatorFollowRepository.countByCreator(
+                                video.getCourse().getCreator()
+                        );
+
+                score += (int) followerCount;
+
+                return new VideoResponse(
+                        video.getId(),
+                        video.getTitle(),
+                        video.getDescription(),
+                        video.getVideoUrl(),
+                        video.getCourse().getId(),
+                        video.isPublished(),
+                        likeCount,
+                        liked,
+                        score
+                );
+
+        }).sorted((a, b) -> Integer.compare(b.getScore(), a.getScore()))
+        .toList();
+
+        // Manual pagination AFTER sorting
+        int start = page * size;
+        int end = Math.min(start + size, scoredVideos.size());
+
+        if (start > scoredVideos.size()) {
+                return List.of();
+        }
+
+        return scoredVideos.subList(start, end);
     }
-
-    UserEntity finalUser = user;
-
-    List<VideoResponse> responseList = videos.stream().map(video -> {
-
-        long likeCount = videoLikeRepository.countByVideo(video);
-
-        boolean liked = false;
-        boolean followedCreator = false;
-
-        if (finalUser != null) {
-            liked = videoLikeRepository
-                    .findByUserAndVideo(finalUser, video)
-                    .isPresent();
-
-            followedCreator = creatorFollowRepository
-                    .findByUserAndCreator(
-                            finalUser,
-                            video.getCourse().getCreator()
-                    )
-                    .isPresent();
-        }
-
-        //  SCORE CALCULATION
-        int score = 0;
-
-        if (followedCreator) {
-            score += 50;
-        }
-
-        score += (int) (likeCount * 2);
-
-        long hoursOld =
-                java.time.Duration.between(
-                        video.getCreatedAt(),
-                        java.time.LocalDateTime.now()
-                ).toHours();
-
-        if (hoursOld <= 24) {
-            score += 20;
-        } else if (hoursOld <= 72) {
-            score += 10;
-        }
-
-        return new VideoResponse(
-                video.getId(),
-                video.getTitle(),
-                video.getDescription(),
-                video.getVideoUrl(),
-                video.getCourse().getId(),
-                video.isPublished(),
-                likeCount,
-                liked,
-                score
-        );
-
-    }).sorted((a, b) -> Integer.compare(b.getScore(), a.getScore()))
-      .toList();
-
-    return responseList;
-}
 
     public void likeVideo(String email, Long videoId) {
 

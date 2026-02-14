@@ -361,11 +361,11 @@ public class UserController {
 
         @PostMapping("/videos/{videoId}/like")
         public String likeVideo(
-                                @PathVariable Long videoId,
-                                Authentication authentication
-                        ) {
-                        userService.likeVideo(authentication.getName(), videoId);
-                        return "Video liked successfully";
+        @PathVariable Long videoId,
+                Authentication authentication
+        ) {
+                userService.likeVideo(authentication.getName(), videoId);
+                return "Video liked successfully";
         }
 
         @PostMapping("/videos/{videoId}/unlike")

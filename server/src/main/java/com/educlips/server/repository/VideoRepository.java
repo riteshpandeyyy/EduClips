@@ -14,4 +14,5 @@ public interface VideoRepository extends JpaRepository<VideoEntity, Long> {
     List<VideoEntity> findByCourseAndPublishedTrueOrderByOrderIndexAsc(
         CourseEntity course);
     Page<VideoEntity> findByPublishedTrueOrderByIdDesc(Pageable pageable);
+    List<VideoEntity> findByPublishedTrueOrderByIdDesc();
 }
