@@ -43,7 +43,8 @@ public class SecurityConfig {
                     "/users/login/**",
                     "/users/courses/**",
                     "/users/creator/**",
-                    "/users/feed"
+                    "/users/feed",
+                    "/users/comments/**"
                 ).permitAll()
 
                 .anyRequest().authenticated()

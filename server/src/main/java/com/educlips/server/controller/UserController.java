@@ -33,6 +33,9 @@ import com.educlips.server.dto.CreateVideoRequest;
 import com.educlips.server.dto.CreatorProfileResponse;
 import com.educlips.server.entity.CourseEntity;
 import com.educlips.server.entity.CreatorProfileEntity;
+import com.educlips.server.dto.CreateCommentRequest;
+import com.educlips.server.dto.CommentResponse;
+import java.util.List;
 
 
 
@@ -393,5 +396,23 @@ public class UserController {
         ) {
         userService.unfollowCreator(authentication.getName(), creatorId);
         return "Unfollowed successfully";
+        }
+
+        @PostMapping("/comment")
+        public CommentResponse addComment(
+                @Valid @RequestBody CreateCommentRequest request,
+                Authentication authentication
+        ) {
+        return userService.addComment(
+                authentication.getName(),
+                request
+        );
+        }
+
+        @GetMapping("/comments/{videoId}")
+        public List<CommentResponse> getComments(
+                @PathVariable Long videoId
+        ) {
+        return userService.getComments(videoId);
         }
 }

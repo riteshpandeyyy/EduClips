@@ -39,6 +39,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 
+import com.educlips.server.repository.CommentRepository;
+import com.educlips.server.entity.CommentEntity;
+import com.educlips.server.dto.CreateCommentRequest;
+import com.educlips.server.dto.CommentResponse;
+
 
 
 
@@ -54,6 +59,7 @@ public class UserService {
     private final VideoRepository videoRepository;
     private final VideoLikeRepository videoLikeRepository;
     private final CreatorFollowRepository creatorFollowRepository;
+    private final CommentRepository commentRepository;
     
 
 
@@ -66,7 +72,8 @@ public class UserService {
             CourseRepository courseRepository,
             VideoRepository videoRepository,
             VideoLikeRepository videoLikeRepository,
-            CreatorFollowRepository creatorFollowRepository
+            CreatorFollowRepository creatorFollowRepository,
+            CommentRepository commentRepository
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -76,6 +83,7 @@ public class UserService {
         this.videoRepository = videoRepository;
         this.videoLikeRepository = videoLikeRepository;
         this.creatorFollowRepository = creatorFollowRepository;
+        this.commentRepository = commentRepository;
     }
 
 
@@ -583,5 +591,55 @@ public class UserService {
 
         creatorFollowRepository.delete(follow);
     }
+
+    
+    public CommentResponse addComment(
+                String email,
+                CreateCommentRequest request
+        ) {
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        VideoEntity video = videoRepository.findById(request.getVideoId())
+                .orElseThrow(() -> new RuntimeException("Video not found"));
+
+        if (!video.isPublished()) {
+                throw new RuntimeException("Cannot comment on unpublished video");
+        }
+
+        CommentEntity comment = new CommentEntity();
+        comment.setContent(request.getContent());
+        comment.setUser(user);
+        comment.setVideo(video);
+
+        CommentEntity saved = commentRepository.save(comment);
+
+        return new CommentResponse(
+                saved.getId(),
+                saved.getContent(),
+                user.getName(),
+                video.getId(),
+                saved.getCreatedAt()
+        );
+    }
+
+    public List<CommentResponse> getComments(Long videoId) {
+
+        VideoEntity video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new RuntimeException("Video not found"));
+
+        return commentRepository
+                .findByVideoOrderByCreatedAtDesc(video)
+                .stream()
+                .map(comment -> new CommentResponse(
+                        comment.getId(),
+                        comment.getContent(),
+                        comment.getUser().getName(),
+                        videoId,
+                        comment.getCreatedAt()
+                ))
+                .toList();
+     }
 
 }
