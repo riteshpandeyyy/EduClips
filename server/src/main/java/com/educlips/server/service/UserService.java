@@ -470,6 +470,8 @@ public class UserService {
                         .isPresent();
                 }
 
+                long commentCount = commentRepository.countByVideo(video);
+
                 int score = 0;
 
                 if (followedCreator) score += 40;
@@ -502,7 +504,8 @@ public class UserService {
                         video.isPublished(),
                         likeCount,
                         liked,
-                        score
+                        score,
+                        commentCount
                 );
 
         }).sorted((a, b) -> Integer.compare(b.getScore(), a.getScore()))
@@ -641,5 +644,23 @@ public class UserService {
                 ))
                 .toList();
      }
+
+     public void deleteComment(Long commentId, String email) {
+
+        CommentEntity comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        boolean isOwner = comment.getUser().getId().equals(user.getId());
+        boolean isAdmin = user.getRole().name().equals("ADMIN");
+
+        if (!isOwner && !isAdmin) {
+                throw new RuntimeException("You cannot delete this comment");
+        }
+
+        commentRepository.delete(comment);
+        }
 
 }

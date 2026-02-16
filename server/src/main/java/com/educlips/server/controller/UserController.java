@@ -9,6 +9,8 @@ import com.educlips.server.entity.UserEntity;
 import com.educlips.server.entity.VideoEntity;
 import com.educlips.server.mapper.CreatorProfileMapper;
 import com.educlips.server.service.UserService;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -273,7 +275,8 @@ public class UserController {
                         video.isPublished(),
                         0L,
                         false,
-                        0
+                        0,
+                        0L
                 ))
                 .toList();
         }
@@ -294,7 +297,8 @@ public class UserController {
                         video.isPublished(),
                         0L,
                         false,
-                        0
+                        0,
+                        0L
                 ))
                 .toList();
         }
@@ -319,7 +323,8 @@ public class UserController {
                         video.isPublished(),
                         0L,
                         false,
-                        0
+                        0,
+                        0L
                 );
         }
 
@@ -343,7 +348,8 @@ public class UserController {
                         video.isPublished(),
                         0L,
                         false,
-                        0
+                        0,
+                        0L
                 );
         }
 
@@ -414,5 +420,14 @@ public class UserController {
                 @PathVariable Long videoId
         ) {
         return userService.getComments(videoId);
+        }
+
+        @DeleteMapping("/comments/{id}")
+        public String deleteComment(
+                @PathVariable Long id,
+                Authentication authentication
+        ) {
+        userService.deleteComment(id, authentication.getName());
+        return "Comment deleted";
         }
 }

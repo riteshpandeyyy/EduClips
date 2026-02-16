@@ -9,5 +9,6 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
 
     List<CommentEntity> findByVideoOrderByCreatedAtDesc(VideoEntity video);
+    long countByVideo(VideoEntity video);
 
 }
