@@ -3,6 +3,7 @@ package com.educlips.server.service;
 import com.educlips.server.dto.CreateCourseRequest;
 import com.educlips.server.dto.CreateCreatorProfileRequest;
 import com.educlips.server.dto.CreateVideoRequest;
+import com.educlips.server.dto.CreatorPublicResponse;
 import com.educlips.server.dto.LoginResponse;
 import com.educlips.server.dto.SignupRequest;
 import com.educlips.server.dto.UserResponse;
@@ -206,6 +207,28 @@ public class UserService {
         return creatorProfileRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Creator profile not found"));
     }
+
+    public CreatorPublicResponse getCreatorProfile(Long creatorProfileId) {
+
+        CreatorProfileEntity profile = getCreatorProfileById(creatorProfileId);
+
+        UserEntity creatorUser = profile.getUser();
+
+        long followers = creatorFollowRepository.countByCreator(profile);
+
+        long totalCourses = courseRepository.countByCreator(profile);
+
+        long totalVideos = videoRepository.countByCourse_Creator(profile);
+
+        return new CreatorPublicResponse(
+                creatorUser.getName(),
+                profile.getBio(),
+                profile.getExpertise(),
+                followers,
+                totalCourses,
+                totalVideos
+        );
+        }
 
 
     public CourseEntity createCourse(

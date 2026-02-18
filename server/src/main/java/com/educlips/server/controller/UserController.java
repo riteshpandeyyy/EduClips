@@ -33,6 +33,7 @@ import com.educlips.server.dto.CreateCourseRequest;
 import com.educlips.server.dto.CreateCreatorProfileRequest;
 import com.educlips.server.dto.CreateVideoRequest;
 import com.educlips.server.dto.CreatorProfileResponse;
+import com.educlips.server.dto.CreatorPublicResponse;
 import com.educlips.server.entity.CourseEntity;
 import com.educlips.server.entity.CreatorProfileEntity;
 import com.educlips.server.dto.CreateCommentRequest;
@@ -138,19 +139,10 @@ public class UserController {
         );
     }
 
-    @GetMapping("/creator/{id}")
-    public CreatorProfileResponse getCreatorProfile(@PathVariable Long id) {
-        CreatorProfileEntity profile = userService.getCreatorProfileById(id);
-
-        return new CreatorProfileResponse(
-                profile.getId(),
-                profile.getUser().getName(),
-                profile.getUser().getEmail(),
-                profile.getBio(),
-                profile.getExpertise(),
-                profile.getFollowersCount()
-        );
-    }
+    @GetMapping("/creators/{id}")
+        public CreatorPublicResponse getCreatorProfile(@PathVariable Long id) {
+        return userService.getCreatorProfile(id);
+        }
 
     CourseResponse cr = new CourseResponse(1L, "Java Basics", "Learn Java from scratch", "Programming", true);
 

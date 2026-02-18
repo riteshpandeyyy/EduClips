@@ -2,6 +2,8 @@ package com.educlips.server.repository;
 
 import com.educlips.server.entity.VideoEntity;
 import com.educlips.server.entity.CourseEntity;
+import com.educlips.server.entity.CreatorProfileEntity;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,4 +17,5 @@ public interface VideoRepository extends JpaRepository<VideoEntity, Long> {
         CourseEntity course);
     Page<VideoEntity> findByPublishedTrueOrderByIdDesc(Pageable pageable);
     List<VideoEntity> findByPublishedTrueOrderByIdDesc();
+    long countByCourse_Creator(CreatorProfileEntity creator);
 }

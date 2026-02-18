@@ -15,4 +15,6 @@ public interface CourseRepository extends JpaRepository<CourseEntity, Long> {
     List<CourseEntity> findByCreator(CreatorProfileEntity creator);
 
     List<CourseEntity> findByPublishedTrue();
+
+    long countByCreator(CreatorProfileEntity creator);
 }
