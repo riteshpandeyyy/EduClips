@@ -26,6 +26,9 @@ public class VideoEntity {
     private boolean published = false;
 
     @Column(nullable = false)
+    private long viewCount = 0;
+
+    @Column(nullable = false)
     private java.time.LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -63,6 +66,10 @@ public class VideoEntity {
         return published;
     }
 
+    public long getViewCount() {
+        return viewCount;
+    }
+
     public CourseEntity getCourse() {
         return course;
     }
@@ -95,6 +102,10 @@ public class VideoEntity {
 
     public void setPublished(boolean published) {
         this.published = published;
+    }
+
+    public void setViewCount(long viewCount) {
+        this.viewCount = viewCount;
     }
 
     public void setCourse(CourseEntity course) {

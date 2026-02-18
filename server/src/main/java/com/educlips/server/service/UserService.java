@@ -505,7 +505,8 @@ public class UserService {
                         likeCount,
                         liked,
                         score,
-                        commentCount
+                        commentCount,
+                        video.getViewCount()
                 );
 
         }).sorted((a, b) -> Integer.compare(b.getScore(), a.getScore()))
@@ -661,6 +662,48 @@ public class UserService {
         }
 
         commentRepository.delete(comment);
+        }
+
+        public VideoResponse watchVideo(Long videoId, String email) {
+
+        VideoEntity video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new RuntimeException("Video not found"));
+
+        if (!video.isPublished()) {
+                throw new RuntimeException("Video not published");
+        }
+
+        // INCREMENT VIEW COUNT
+        video.setViewCount(video.getViewCount() + 1);
+        videoRepository.save(video);
+
+        long likeCount = videoLikeRepository.countByVideo(video);
+        long commentCount = commentRepository.countByVideo(video);
+
+        boolean liked = false;
+
+        if (email != null) {
+                UserEntity user = userRepository.findByEmail(email).orElse(null);
+                if (user != null) {
+                liked = videoLikeRepository
+                        .findByUserAndVideo(user, video)
+                        .isPresent();
+                }
+        }
+
+        return new VideoResponse(
+                video.getId(),
+                video.getTitle(),
+                video.getDescription(),
+                video.getVideoUrl(),
+                video.getCourse().getId(),
+                video.isPublished(),
+                likeCount,
+                liked,
+                0,
+                commentCount,
+                video.getViewCount()
+        );
         }
 
 }

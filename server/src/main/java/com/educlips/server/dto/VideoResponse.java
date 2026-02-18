@@ -12,6 +12,7 @@ public class VideoResponse {
     private boolean likedByCurrentUser;
     private int score;
     private long commentCount;
+    private long viewCount;
 
     public VideoResponse(
             Long id,
@@ -23,7 +24,8 @@ public class VideoResponse {
             long likeCount,
             boolean likedByCurrentUser,
             int score,
-            long commentCount
+            long commentCount,
+            long viewCount
     ) {
         this.id = id;
         this.title = title;
@@ -35,6 +37,7 @@ public class VideoResponse {
         this.likedByCurrentUser = likedByCurrentUser;
         this.score = score;
         this.commentCount = commentCount;
+        this.viewCount = viewCount;
     }
 
     public Long getId() {
@@ -75,5 +78,9 @@ public class VideoResponse {
 
     public long getCommentCount() {
         return commentCount;
+    }
+
+    public long getViewCount() {
+        return viewCount;
     }
 }

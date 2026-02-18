@@ -276,6 +276,7 @@ public class UserController {
                         0L,
                         false,
                         0,
+                        0L,
                         0L
                 ))
                 .toList();
@@ -298,6 +299,7 @@ public class UserController {
                         0L,
                         false,
                         0,
+                        0L,
                         0L
                 ))
                 .toList();
@@ -324,6 +326,7 @@ public class UserController {
                         0L,
                         false,
                         0,
+                        0L,
                         0L
                 );
         }
@@ -349,6 +352,7 @@ public class UserController {
                         0L,
                         false,
                         0,
+                        0L,
                         0L
                 );
         }
@@ -429,5 +433,19 @@ public class UserController {
         ) {
         userService.deleteComment(id, authentication.getName());
         return "Comment deleted";
+        }
+
+        @GetMapping("/videos/{id}")
+        public VideoResponse watchVideo(
+                @PathVariable Long id,
+                Authentication authentication
+        ) {
+
+        String email = null;
+        if (authentication != null) {
+                email = authentication.getName();
+        }
+
+        return userService.watchVideo(id, email);
         }
 }
