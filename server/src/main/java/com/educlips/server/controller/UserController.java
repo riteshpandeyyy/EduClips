@@ -10,6 +10,7 @@ import com.educlips.server.entity.VideoEntity;
 import com.educlips.server.mapper.CreatorProfileMapper;
 import com.educlips.server.service.UserService;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -39,7 +40,6 @@ import com.educlips.server.entity.CreatorProfileEntity;
 import com.educlips.server.dto.CreateCommentRequest;
 import com.educlips.server.dto.CommentResponse;
 import java.util.List;
-
 
 
 @RestController
