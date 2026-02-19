@@ -10,34 +10,31 @@ function Navbar() {
   };
 
   return (
-    <nav style={{ padding: "15px", borderBottom: "1px solid gray" }}>
-      <Link to="/feed">Feed</Link>
+    <nav
+  style={{
+    padding: "15px 30px",
+    background: "white",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+    display: "flex",
+    justifyContent: "space-between",
+  }}
+>
+  <div>
+    <Link to="/feed">Feed</Link>
+    {role === "CREATOR" && (
+      <>
+        {" | "}
+        <Link to="/creator-check">Dashboard</Link>
+      </>
+    )}
+  </div>
 
-      {role === "CREATOR" && (
-        <>
-          {" | "}
-          <Link to="/creator-check">Dashboard</Link>
-        </>
-      )}
-
-      {!isLoggedIn() && (
-        <>
-          {" | "}
-          <Link to="/">Login</Link>
-          {" | "}
-          <Link to="/signup">Signup</Link>
-        </>
-      )}
-
-      {isLoggedIn() && (
-        <button
-          onClick={handleLogout}
-          style={{ marginLeft: "15px" }}
-        >
-          Logout
-        </button>
-      )}
-    </nav>
+  {isLoggedIn() && (
+    <button className="button" onClick={handleLogout}>
+      Logout
+    </button>
+  )}
+</nav>
   );
 }
 

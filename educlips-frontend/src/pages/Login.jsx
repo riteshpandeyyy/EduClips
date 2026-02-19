@@ -43,31 +43,37 @@ function Login() {
     };
 
   return (
-    <div style={{ padding: "20px" }}>
+  <div className="container">
+    <div className="card">
       <h2>Login</h2>
 
       <form onSubmit={handleLogin}>
         <input
+          className="input"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <br /><br />
 
         <input
+          className="input"
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <br /><br />
 
-        <button type="submit">Login</button>
+        <button className="button" type="submit">
+          Login
+        </button>
       </form>
+
+      <p style={{marginTop: "15px"}}>Don't have an account? <a href="/signup" style={{color:"#2563eb", fontWeight: "500"}}>Sign up</a>  </p>
     </div>
-  );
+  </div>
+);
 }
 
 export default Login;

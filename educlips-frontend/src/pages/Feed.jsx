@@ -7,24 +7,81 @@ function Feed() {
 
   useEffect(() => {
     const load = async () => {
-      const res = await axios.get("/users/feed");
-      setVideos(res.data);
+      try {
+        const res = await axios.get("/users/feed");
+        setVideos(res.data);
+      } catch (err) {
+        console.error("Feed load error:", err);
+      }
     };
     load();
   }, []);
 
+  const handleLikeToggle = async (videoId, liked) => {
+    try {
+      if (liked) {
+        await axios.post(`/users/videos/${videoId}/unlike`);
+      } else {
+        await axios.post(`/users/videos/${videoId}/like`);
+      }
+
+      // 🔥 Optimistic UI update (no reload)
+      setVideos((prev) =>
+        prev.map((v) =>
+          v.id === videoId
+            ? {
+                ...v,
+                likedByCurrentUser: !liked,
+                likeCount: liked ? v.likeCount - 1 : v.likeCount + 1,
+              }
+            : v
+        )
+      );
+    } catch (err) {
+      console.error("Like/Unlike error:", err);
+    }
+  };
+
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="container">
       <h2>Feed</h2>
 
-      {videos.map((v) => (
-        <div key={v.id} style={{ border: "1px solid gray", padding: "10px", marginBottom: "10px" }}>
-          <h3>{v.title}</h3>
-          <p>{v.description}</p>
-          <p>Likes: {v.likeCount}</p>
-          <Link to={`/video/${v.id}`}>Watch</Link>
-        </div>
-      ))}
+      {videos.length === 0 ? (
+        <p>No videos found</p>
+      ) : (
+        videos.map((v) => (
+          <div key={v.id} className="card">
+            <h3>{v.title}</h3>
+            <p>{v.description}</p>
+
+            <p>
+              ❤️ {v.likeCount} &nbsp;&nbsp;
+              👁 {v.viewCount} &nbsp;&nbsp;
+              💬 {v.commentCount}
+            </p>
+
+            <div style={{ marginTop: "10px" }}>
+              <button
+                className="button"
+                onClick={() =>
+                  handleLikeToggle(v.id, v.likedByCurrentUser)
+                }
+              >
+                {v.likedByCurrentUser ? "Unlike" : "Like"}
+              </button>
+
+              <Link to={`/video/${v.id}`}>
+                <button
+                  className="button"
+                  style={{ marginLeft: "10px" }}
+                >
+                  Watch
+                </button>
+              </Link>
+            </div>
+          </div>
+        ))
+      )}
     </div>
   );
 }
