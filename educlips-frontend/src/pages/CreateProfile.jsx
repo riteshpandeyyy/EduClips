@@ -1,13 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 
 function CreateProfile() {
   const [bio, setBio] = useState("");
   const [expertise, setExpertise] = useState("");
-  const navigate = useNavigate();
 
-  const handleCreateProfile = async (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
 
     try {
@@ -16,11 +14,9 @@ function CreateProfile() {
         expertise,
       });
 
-      alert("Profile created successfully");
-      navigate("/creator/dashboard");
-    } catch (err) {
-      console.log("Create profile error:", err);
-      alert("Failed to create profile");
+      window.location.href = "/dashboard";
+    } catch {
+      alert("Profile creation failed");
     }
   };
 
@@ -28,20 +24,16 @@ function CreateProfile() {
     <div style={{ padding: "20px" }}>
       <h2>Create Creator Profile</h2>
 
-      <form onSubmit={handleCreateProfile}>
+      <form onSubmit={handleCreate}>
         <input
-          type="text"
-          placeholder="Your bio"
-          value={bio}
+          placeholder="Bio"
           onChange={(e) => setBio(e.target.value)}
           required
         />
         <br /><br />
 
         <input
-          type="text"
-          placeholder="Your expertise"
-          value={expertise}
+          placeholder="Expertise"
           onChange={(e) => setExpertise(e.target.value)}
           required
         />

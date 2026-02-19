@@ -1,10 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 
 function Login() {
-  const navigate = useNavigate();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -12,30 +9,38 @@ function Login() {
     e.preventDefault();
 
     try {
-      const res = await axios.post("/users/login", {
+        const res = await axios.post("/users/login", {
         email,
         password,
-      });
+        });
 
-      const token = res.data.token;
-      localStorage.setItem("token", token);
+        const token = res.data.token;
 
-      // Decode JWT
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const role = payload.role;
+        localStorage.setItem("token", token);
 
-      // Role-based redirect
-      if (role === "CREATOR") {
-        navigate("/creator/dashboard");
-      } else {
-        navigate("/feed");
-      }
+        // decode JWT
+        const payload = JSON.parse(atob(token.split(".")[1]));
+
+        // check what key contains role
+        const role =
+        payload.role ||
+        payload.roles ||
+        payload.authorities ||
+        payload.auth;
+
+        localStorage.setItem("role", role);
+
+        if (role === "CREATOR" || role === "ROLE_CREATOR") {
+        window.location.href = "/creator-check";
+        } else {
+        window.location.href = "/feed";
+        }
 
     } catch (err) {
-      console.error("Login error:", err);
-      alert("Invalid credentials");
+        console.error(err);
+        alert("Login failed");
     }
-  };
+    };
 
   return (
     <div style={{ padding: "20px" }}>
@@ -43,7 +48,6 @@ function Login() {
 
       <form onSubmit={handleLogin}>
         <input
-          type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -62,15 +66,6 @@ function Login() {
 
         <button type="submit">Login</button>
       </form>
-
-      <br />
-
-      <p>
-        Don't have an account?{" "}
-        <button onClick={() => navigate("/signup")}>
-          Signup
-        </button>
-      </p>
     </div>
   );
 }
