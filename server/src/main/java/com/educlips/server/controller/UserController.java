@@ -440,4 +440,14 @@ public class UserController {
 
         return userService.watchVideo(id, email);
         }
+
+        @PreAuthorize("hasRole('CREATOR')")
+        @DeleteMapping("/creator/videos/{videoId}")
+        public String deleteVideo(
+                @PathVariable Long videoId,
+                Authentication authentication
+        ) {
+        userService.deleteVideo(authentication.getName(), videoId);
+        return "Video deleted successfully";
+        }
 }

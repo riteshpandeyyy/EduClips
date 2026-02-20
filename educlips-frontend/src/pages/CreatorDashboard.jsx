@@ -321,7 +321,42 @@ function CreatorDashboard() {
                         >
                           Publish Video
                         </button>
+
+                        
                       )}
+
+                      <button
+                        className="button"
+                        style={{
+                          backgroundColor: "#e74c3c",
+                          marginLeft: "10px",
+                        }}
+                        onClick={async () => {
+                          const confirmDelete = window.confirm(
+                            "Are you sure you want to delete this video?"
+                          );
+                          if (!confirmDelete) return;
+
+                          try {
+                            await axios.delete(
+                              `/users/creator/videos/${video.id}`
+                            );
+
+                            // 🔥 Remove instantly from UI
+                            setVideosMap((prev) => ({
+                              ...prev,
+                              [course.id]: prev[course.id].filter(
+                                (v) => v.id !== video.id
+                              ),
+                            }));
+                          } catch (err) {
+                            console.error("Delete error:", err);
+                            alert("Delete failed");
+                          }
+                        }}
+                      >
+                        Delete
+                      </button>
                     </div>
                   ))
                 )}

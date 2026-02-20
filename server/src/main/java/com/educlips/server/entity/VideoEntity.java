@@ -35,6 +35,20 @@ public class VideoEntity {
     @JoinColumn(name = "course_id", nullable = false)
     private CourseEntity course;
 
+    @OneToMany(
+    mappedBy = "video",
+    cascade = CascadeType.ALL,
+    orphanRemoval = true
+    )
+    private java.util.List<CommentEntity> comments = new java.util.ArrayList<>();
+
+    @OneToMany(
+        mappedBy = "video",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+        )
+        private java.util.List<VideoLikeEntity> likes = new java.util.ArrayList<>();
+
     @PrePersist
     public void prePersist() {    
         this.createdAt = java.time.LocalDateTime.now();

@@ -7,6 +7,7 @@ public class CommentResponse {
     private Long id;
     private String content;
     private String userName;
+    private Long userId;
     private Long videoId;
     private LocalDateTime createdAt;
 
@@ -14,12 +15,14 @@ public class CommentResponse {
             Long id,
             String content,
             String userName,
+            Long userId,
             Long videoId,
             LocalDateTime createdAt
     ) {
         this.id = id;
         this.content = content;
         this.userName = userName;
+        this.userId = userId;
         this.videoId = videoId;
         this.createdAt = createdAt;
     }
@@ -29,6 +32,7 @@ public class CommentResponse {
     public Long getId() { return id; }
     public String getContent() { return content; }
     public String getUserName() { return userName; }
+    public Long getUserId() { return userId; }
     public Long getVideoId() { return videoId; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 }

@@ -646,6 +646,7 @@ public class UserService {
                 saved.getId(),
                 saved.getContent(),
                 user.getName(),
+                user.getId(),
                 video.getId(),
                 saved.getCreatedAt()
         );
@@ -663,7 +664,8 @@ public class UserService {
                         comment.getId(),
                         comment.getContent(),
                         comment.getUser().getName(),
-                        videoId,
+                        comment.getUser().getId(),
+                        comment.getVideo().getId(),
                         comment.getCreatedAt()
                 ))
                 .toList();
@@ -727,6 +729,23 @@ public class UserService {
                 commentCount,
                 video.getViewCount()
         );
+        }
+
+        public void deleteVideo(String email, Long videoId) {
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        VideoEntity video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new RuntimeException("Video not found"));
+
+        // Ensure creator owns the video
+        if (!video.getCourse().getCreator().getUser().getId()
+                .equals(user.getId())) {
+                throw new RuntimeException("Unauthorized");
+        }
+
+        videoRepository.delete(video);
         }
 
 }
