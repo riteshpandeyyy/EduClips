@@ -8,6 +8,7 @@ public class CreatorPublicResponse {
     private long followers;
     private long totalCourses;
     private long totalVideos;
+    private boolean followedByCurrentUser;
 
     public CreatorPublicResponse(
             String name,
@@ -15,7 +16,8 @@ public class CreatorPublicResponse {
             String expertise,
             long followers,
             long totalCourses,
-            long totalVideos
+            long totalVideos,
+            boolean followedByCurrentUser
     ) {
         this.name = name;
         this.bio = bio;
@@ -23,6 +25,7 @@ public class CreatorPublicResponse {
         this.followers = followers;
         this.totalCourses = totalCourses;
         this.totalVideos = totalVideos;
+        this.followedByCurrentUser = followedByCurrentUser;
     }
 
     public String getName() { return name; }
@@ -31,4 +34,5 @@ public class CreatorPublicResponse {
     public long getFollowers() { return followers; }
     public long getTotalCourses() { return totalCourses; }
     public long getTotalVideos() { return totalVideos; }
+    public boolean isFollowedByCurrentUser() { return followedByCurrentUser; }
 }

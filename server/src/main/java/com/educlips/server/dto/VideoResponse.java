@@ -13,6 +13,8 @@ public class VideoResponse {
     private int score;
     private long commentCount;
     private long viewCount;
+    private long creatorId;
+    private String creatorName;
 
     public VideoResponse(
             Long id,
@@ -25,7 +27,10 @@ public class VideoResponse {
             boolean likedByCurrentUser,
             int score,
             long commentCount,
-            long viewCount
+            long viewCount,
+            long creatorId,
+            String creatorName
+            
     ) {
         this.id = id;
         this.title = title;
@@ -38,6 +43,8 @@ public class VideoResponse {
         this.score = score;
         this.commentCount = commentCount;
         this.viewCount = viewCount;
+        this.creatorId = creatorId;
+        this.creatorName = creatorName;
     }
 
     public Long getId() {
@@ -82,5 +89,13 @@ public class VideoResponse {
 
     public long getViewCount() {
         return viewCount;
+    }
+
+    public long getCreatorId() {
+        return creatorId;
+    }
+
+    public String getCreatorName() {
+        return creatorName;
     }
 }

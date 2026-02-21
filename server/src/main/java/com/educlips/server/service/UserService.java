@@ -208,7 +208,7 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("Creator profile not found"));
     }
 
-    public CreatorPublicResponse getCreatorProfile(Long creatorProfileId) {
+    public CreatorPublicResponse getCreatorProfile(Long creatorProfileId, String currentUserEmail) {
 
         CreatorProfileEntity profile = getCreatorProfileById(creatorProfileId);
 
@@ -220,13 +220,27 @@ public class UserService {
 
         long totalVideos = videoRepository.countByCourse_Creator(profile);
 
+        boolean isfollowing = false;
+
+        if(currentUserEmail != null) {
+
+                UserEntity currentUser = userRepository.findByEmail(currentUserEmail)
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+
+                isfollowing = creatorFollowRepository
+                        .findByUserAndCreator(currentUser, profile)
+                        .isPresent();
+        }
+
+
         return new CreatorPublicResponse(
                 creatorUser.getName(),
                 profile.getBio(),
                 profile.getExpertise(),
                 followers,
                 totalCourses,
-                totalVideos
+                totalVideos,
+                isfollowing
         );
         }
 
@@ -529,7 +543,9 @@ public class UserService {
                         liked,
                         score,
                         commentCount,
-                        video.getViewCount()
+                        video.getViewCount(),
+                        video.getCourse().getCreator().getId(),
+                        video.getCourse().getCreator().getUser().getName()
                 );
 
         }).sorted((a, b) -> Integer.compare(b.getScore(), a.getScore()))
@@ -727,7 +743,9 @@ public class UserService {
                 liked,
                 0,
                 commentCount,
-                video.getViewCount()
+                video.getViewCount(),
+                video.getCourse().getCreator().getId(),
+                video.getCourse().getCreator().getUser().getName()
         );
         }
 

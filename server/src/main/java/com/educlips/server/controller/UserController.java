@@ -140,11 +140,15 @@ public class UserController {
     }
 
     @GetMapping("/creators/{id}")
-        public CreatorPublicResponse getCreatorProfile(@PathVariable Long id) {
-        return userService.getCreatorProfile(id);
+        public CreatorPublicResponse getCreatorProfile(@PathVariable Long id, Authentication authentication) {
+                String email = null;
+                if (authentication != null) {
+                        email = authentication.getName();
+                }
+        return userService.getCreatorProfile(id, email);
         }
 
-    CourseResponse cr = new CourseResponse(1L, "Java Basics", "Learn Java from scratch", "Programming", true);
+    CourseResponse cr = new CourseResponse(1L, "Java Basics", "Learn Java from scratch", "Programming", true, 1L);
 
     @PreAuthorize("hasRole('CREATOR')")
     @PostMapping("/creator/courses")
@@ -160,7 +164,8 @@ public class UserController {
                 course.getTitle(),
                 course.getDescription(),
                 course.getCategory(),
-                course.isPublished()
+                course.isPublished(),
+                course.getCreator().getId()
         );
     }
 
@@ -175,7 +180,8 @@ public class UserController {
                         course.getTitle(),
                         course.getDescription(),
                         course.getCategory(),
-                        course.isPublished()
+                        course.isPublished(),
+                        course.getCreator().getId()
                 ))
                 .toList();
     }
@@ -190,7 +196,8 @@ public class UserController {
                         course.getTitle(),
                         course.getDescription(),
                         course.getCategory(),
-                        course.isPublished()
+                        course.isPublished(),
+                        course.getCreator().getId()
                 ))
                 .toList();
     }
@@ -211,7 +218,8 @@ public class UserController {
                 course.getTitle(),
                 course.getDescription(),
                 course.getCategory(),
-                course.isPublished()
+                course.isPublished(),
+                course.getCreator().getId()
         );
         }
 
@@ -231,7 +239,8 @@ public class UserController {
                 course.getTitle(),
                 course.getDescription(),
                 course.getCategory(),
-                course.isPublished()
+                course.isPublished(),
+                course.getCreator().getId()
         );
         }
 
@@ -269,7 +278,9 @@ public class UserController {
                         false,
                         0,
                         0L,
-                        0L
+                        0L,
+                        video.getCourse().getCreator().getId(),
+                        video.getCourse().getCreator().getUser().getName()
                 ))
                 .toList();
         }
@@ -292,7 +303,9 @@ public class UserController {
                         false,
                         0,
                         0L,
-                        0L
+                        0L,
+                        video.getCourse().getCreator().getId(),
+                        video.getCourse().getCreator().getUser().getName()
                 ))
                 .toList();
         }
@@ -319,7 +332,9 @@ public class UserController {
                         false,
                         0,
                         0L,
-                        0L
+                        0L,
+                        video.getCourse().getCreator().getId(),
+                        video.getCourse().getCreator().getUser().getName()
                 );
         }
 
@@ -345,7 +360,9 @@ public class UserController {
                         false,
                         0,
                         0L,
-                        0L
+                        0L,
+                        video.getCourse().getCreator().getId(),
+                        video.getCourse().getCreator().getUser().getName()
                 );
         }
 

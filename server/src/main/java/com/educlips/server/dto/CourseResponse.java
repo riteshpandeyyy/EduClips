@@ -7,19 +7,22 @@ public class CourseResponse {
     private String description;
     private String category;
     private boolean published;
+    private long creatorId;
 
     public CourseResponse(
             Long id,
             String title,
             String description,
             String category,
-            boolean published
+            boolean published,
+            long creatorId
     ) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.category = category;
         this.published = published;
+        this.creatorId = creatorId;
     }
 
     public Long getId() {
@@ -40,6 +43,10 @@ public class CourseResponse {
 
     public boolean isPublished() {
         return published;
+    }
+
+    public long getCreatorId() {
+        return creatorId;
     }
 
 }

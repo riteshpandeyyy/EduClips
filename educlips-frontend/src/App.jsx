@@ -8,6 +8,7 @@ import WatchVideo from "./pages/WatchVideo";
 import CreatorCheck from "./pages/CreatorCheck";
 import CreateProfile from "./pages/CreateProfile";
 import CreatorDashboard from "./pages/CreatorDashboard";
+import CreatorProfile from "./pages/CreatorProfile";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/creator-check" element={<CreatorCheck />} />
         <Route path="/create-profile" element={<CreateProfile />} />
         <Route path="/dashboard" element={<CreatorDashboard />} />
+        <Route path="/creator/:id" element={<CreatorProfile />} />
       </Routes>
     </BrowserRouter>
   );
