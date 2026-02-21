@@ -51,7 +51,6 @@ function WatchVideo() {
           ? prev.likeCount - 1
           : prev.likeCount + 1,
       }));
-
     } catch (err) {
       console.error("Like error:", err);
     }
@@ -68,19 +67,14 @@ function WatchVideo() {
         content: newComment,
       });
 
-      const createdComment = res.data;
+      setComments((prev) => [...prev, res.data]);
 
-      // Add comment instantly to UI
-      setComments((prev) => [...prev, createdComment]);
-
-      // Update comment count locally
       setVideo((prev) => ({
         ...prev,
         commentCount: prev.commentCount + 1,
       }));
 
       setNewComment("");
-
     } catch (err) {
       console.error("Comment error:", err);
     } finally {
@@ -100,22 +94,28 @@ function WatchVideo() {
         ...prev,
         commentCount: prev.commentCount - 1,
       }));
-
     } catch (err) {
       console.error("Delete comment error:", err);
-      alert("Delete failed");
     }
   };
 
-  if (loading) return <div className="container">Loading...</div>;
+  if (loading)
+    return (
+      <div style={{ background: "#0f0f0f", minHeight: "100vh", color: "white", padding: "40px" }}>
+        Loading...
+      </div>
+    );
 
   if (!video)
-    return <div className="container">Video not found</div>;
+    return (
+      <div style={{ background: "#0f0f0f", minHeight: "100vh", color: "white", padding: "40px" }}>
+        Video not found
+      </div>
+    );
 
   const extractVideoId = (url) => {
     if (!url) return null;
 
-    // handle shorts
     if (url.includes("shorts/")) {
       return url.split("shorts/")[1].split("?")[0];
     }
@@ -128,105 +128,158 @@ function WatchVideo() {
   };
 
   return (
-    <div className="container">
-      <div className="card">
-         <h2>{video.title}</h2>
-          <p>{video.description}</p>
-
-          {/* YouTube Embed */}
-          <div
+    <div
+      style={{
+        background: "#0f0f0f",
+        minHeight: "100vh",
+        paddingTop: "40px",
+        paddingBottom: "60px",
+        display: "flex",
+        justifyContent: "center",
+      }}
+    >
+      <div style={{ width: "380px", color: "white" }}>
+        {/* Video Frame */}
+        <div
           style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            marginTop: "20px",
+            borderRadius: "20px",
+            overflow: "hidden",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
           }}
         >
           <iframe
             src={`https://www.youtube.com/embed/${extractVideoId(
               video.videoUrl
             )}`}
-            title="YouTube video player"
             frameBorder="0"
             allowFullScreen
             style={{
-              height: "80vh",          
-              aspectRatio: "9 / 16",  
-              borderRadius: "15px",
+              width: "100%",
+              height: "640px",
             }}
           ></iframe>
         </div>
 
-          <p style={{ marginTop: "10px" }}>
-            ❤️ {video.likeCount} &nbsp;&nbsp;
-            👁 {video.viewCount} &nbsp;&nbsp;
-            💬 {video.commentCount}
+        {/* Video Info */}
+        <div style={{ marginTop: "15px" }}>
+          <h3 style={{ margin: "5px 0" }}>{video.title}</h3>
+
+          <p style={{ fontSize: "14px", color: "#bbb" }}>
+            {video.description}
           </p>
 
-        <button className="button" onClick={handleLikeToggle}>
-          {video.likedByCurrentUser ? "Unlike" : "Like"}
-        </button>
-      </div>
-
-      <div className="card" style={{ marginTop: "20px" }}>
-        <h3>Comments</h3>
-
-        <div style={{ marginBottom: "15px" }}>
-          <input
-            className="input"
-            placeholder="Write a comment..."
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-          />
-          <button
-            className="button"
-            onClick={handleAddComment}
-            disabled={submitting}
-            style={{ marginTop: "10px" }}
+          <div
+            style={{
+              display: "flex",
+              gap: "15px",
+              fontSize: "14px",
+              color: "#999",
+              marginTop: "10px",
+              marginBottom: "10px",
+            }}
           >
-            {submitting ? "Posting..." : "Post Comment"}
+            <span>❤️ {video.likeCount}</span>
+            <span>👁 {video.viewCount}</span>
+            <span>💬 {video.commentCount}</span>
+          </div>
+
+          <button
+            onClick={handleLikeToggle}
+            style={{
+              padding: "8px 16px",
+              borderRadius: "8px",
+              border: "none",
+              background: video.likedByCurrentUser
+                ? "#ff2e63"
+                : "#2a2a2a",
+              color: "white",
+              cursor: "pointer",
+              fontWeight: "500",
+            }}
+          >
+            {video.likedByCurrentUser ? "Unlike" : "Like"}
           </button>
         </div>
 
-        {comments.length === 0 ? (
-          <p>No comments yet</p>
-        ) : (
-          comments.map((c) => (
-            <div
-              key={c.id}
+        {/* Comments Section */}
+        <div style={{ marginTop: "40px" }}>
+          <h3 style={{ marginBottom: "15px" }}>Comments</h3>
+
+          <div style={{ marginBottom: "20px" }}>
+            <input
+              placeholder="Write a comment..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
               style={{
-                borderTop: "1px solid #ddd",
-                padding: "10px 0",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                width: "100%",
+                padding: "10px",
+                borderRadius: "8px",
+                border: "1px solid #333",
+                background: "#1c1c1c",
+                color: "white",
+                marginBottom: "10px",
+              }}
+            />
+
+            <button
+              onClick={handleAddComment}
+              disabled={submitting}
+              style={{
+                padding: "8px 16px",
+                borderRadius: "8px",
+                border: "none",
+                background: "#ff2e63",
+                color: "white",
+                cursor: "pointer",
               }}
             >
-              <div>
-                <strong>{c.userName}</strong>
-                <p>{c.content}</p>
-              </div>
+              {submitting ? "Posting..." : "Post Comment"}
+            </button>
+          </div>
 
-              {currentUser &&
-                currentUser.id === c.userId && (
-                  <button
-                    style={{
-                      backgroundColor: "#e74c3c",
-                      color: "white",
-                      border: "none",
-                      padding: "5px 10px",
-                      cursor: "pointer",
-                    }}
-                    onClick={() =>
-                      handleDeleteComment(c.id)
-                    }
-                  >
-                    Delete
-                  </button>
-                )}
-            </div>
-          ))
-        )}
+          {comments.length === 0 ? (
+            <p style={{ color: "#888" }}>No comments yet</p>
+          ) : (
+            comments.map((c) => (
+              <div
+                key={c.id}
+                style={{
+                  padding: "12px",
+                  marginBottom: "10px",
+                  background: "#1c1c1c",
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                }}
+              >
+                <strong style={{ color: "#ff2e63" }}>
+                  {c.userName}
+                </strong>
+                <p style={{ marginTop: "5px", color: "#ccc" }}>
+                  {c.content}
+                </p>
+
+                {currentUser &&
+                  currentUser.id === c.userId && (
+                    <button
+                      onClick={() =>
+                        handleDeleteComment(c.id)
+                      }
+                      style={{
+                        marginTop: "5px",
+                        background: "none",
+                        border: "none",
+                        color: "#ff2e63",
+                        cursor: "pointer",
+                        fontSize: "12px",
+                      }}
+                    >
+                      Delete
+                    </button>
+                  )}
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

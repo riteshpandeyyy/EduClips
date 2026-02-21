@@ -10,8 +10,7 @@ function CreatorDashboard() {
   const [videoForms, setVideoForms] = useState({});
   const [videoData, setVideoData] = useState({});
 
-
-      const loadVideos = async (courseId) => {
+  const loadVideos = async (courseId) => {
     try {
       const res = await axios.get(
         `/users/creator/courses/${courseId}/videos`
@@ -26,12 +25,11 @@ function CreatorDashboard() {
     }
   };
 
-    const loadCourses = async () => {
+  const loadCourses = async () => {
     try {
       const res = await axios.get("/users/creator/courses");
       setCourses(res.data);
 
-      // Load videos for each course
       res.data.forEach((course) => {
         loadVideos(course.id);
       });
@@ -66,366 +64,396 @@ function CreatorDashboard() {
   };
 
   return (
-    <div className="container">
-      <h2>Creator Dashboard</h2>
+    <div style={pageStyle}>
+      <div style={{ width: "900px", maxWidth: "95%" }}>
+        <h2 style={{ color: "white", marginBottom: "20px" }}>
+          Creator Studio
+        </h2>
 
-      {/* Create Course */}
-      <div className="card">
-        <h3>Create Course</h3>
+        {/* CREATE COURSE */}
+        <div style={cardStyle}>
+          <h3>Create Course</h3>
 
-        <form onSubmit={handleCreateCourse}>
-          <input
-            className="input"
-            placeholder="Course Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
+          <form onSubmit={handleCreateCourse}>
+            <input
+              placeholder="Course Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              style={inputStyle}
+            />
 
-          <input
-            className="input"
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
+            <input
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              style={inputStyle}
+            />
 
-          <input
-            className="input"
-            placeholder="Category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            required
-          />
+            <input
+              placeholder="Category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              required
+              style={inputStyle}
+            />
 
-          <button className="button" type="submit">
-            Create Course
-          </button>
-        </form>
-      </div>
-
-      <h3 style={{ marginTop: "30px" }}>My Courses</h3>
-
-      {courses.length === 0 ? (
-        <p>No courses yet</p>
-      ) : (
-        courses.map((course) => (
-        <div key={course.id} className="card">
-          <h4>{course.title}</h4>
-          <p>{course.description}</p>
-          <p>Category: {course.category}</p>
-
-          <p>
-            Status:{" "}
-            <strong
-              style={{
-                color: course.published ? "green" : "red",
-              }}
-            >
-              {course.published ? "Published" : "Draft"}
-            </strong>
-          </p>
-
-          {/* 🔥 Publish / Unpublish */}
-          {course.published ? (
-            <button
-              className="button"
-              onClick={async () => {
-                try {
-                  await axios.post(
-                    `/users/creator/courses/${course.id}/unpublish`
-                  );
-
-                  setCourses((prev) =>
-                    prev.map((c) =>
-                      c.id === course.id
-                        ? { ...c, published: false }
-                        : c
-                    )
-                  );
-                } catch (err) {
-                  console.error("Unpublish error:", err);
-                  alert("Unpublish failed");
-                }
-              }}
-            >
-              Unpublish
+            <button type="submit" style={primaryButton}>
+              Create Course
             </button>
-          ) : (
-            <button
-              className="button"
-              onClick={async () => {
-                try {
-                  await axios.patch(
-                    `/users/creator/courses/${course.id}/publish`
-                  );
+          </form>
+        </div>
 
-                  setCourses((prev) =>
-                    prev.map((c) =>
-                      c.id === course.id
-                        ? { ...c, published: true }
-                        : c
-                    )
-                  );
-                } catch (err) {
-                  console.error("Publish error:", err);
-                  alert("Publish failed");
-                }
-              }}
-            >
-              Publish
-            </button>
-          )}
+        {/* COURSES */}
+        <h3 style={{ marginTop: "40px", color: "white" }}>
+          My Courses
+        </h3>
 
-          {/* 🔥 Delete Course */}
-          <button
-            className="button"
-            style={{
-              backgroundColor: "#e74c3c",
-              marginLeft: "10px",
-            }}
-            onClick={async () => {
-              const confirmDelete = window.confirm(
-                "Are you sure you want to delete this course? This will delete all videos."
-              );
+        {courses.length === 0 ? (
+          <p style={{ color: "#888" }}>No courses yet</p>
+        ) : (
+          courses.map((course) => (
+            <div key={course.id} style={cardStyle}>
+              <h4>{course.title}</h4>
+              <p style={{ color: "#bbb" }}>
+                {course.description}
+              </p>
 
-              if (!confirmDelete) return;
+              <p style={{ marginTop: "8px" }}>
+                <span style={badgeStyle(course.published)}>
+                  {course.published ? "Published" : "Draft"}
+                </span>
+              </p>
 
-              try {
-                await axios.delete(
-                  `/users/creator/courses/${course.id}`
-                );
-
-                // Remove instantly from UI
-                setCourses((prev) =>
-                  prev.filter((c) => c.id !== course.id)
-                );
-
-              } catch (err) {
-                console.error("Delete error:", err);
-                alert("Delete failed");
-              }
-            }}
-          >
-            Delete
-          </button>
-
-    {/* 🔥 Videos Section (Keep Your Existing Code Below) */}
-
-            {/* Add Video Button */}
-            <button
-              className="button"
-              style={{ marginLeft: "10px" }}
-              onClick={() =>
-                setVideoForms((prev) => ({
-                  ...prev,
-                  [course.id]: !prev[course.id],
-                }))
-              }
-            >
-              Add Video
-            </button>
-
-            {/* Add Video Form */}
-            {videoForms[course.id] && (
+              {/* ACTION BUTTONS */}
               <div style={{ marginTop: "15px" }}>
-                <input
-                  className="input"
-                  placeholder="Video Title"
-                  onChange={(e) =>
-                    setVideoData((prev) => ({
-                      ...prev,
-                      [course.id]: {
-                        ...prev[course.id],
-                        title: e.target.value,
-                      },
-                    }))
-                  }
-                />
+                {course.published ? (
+                  <button
+                    style={secondaryButton}
+                    onClick={async () => {
+                      try {
+                        await axios.post(
+                          `/users/creator/courses/${course.id}/unpublish`
+                        );
 
-                <input
-                  className="input"
-                  placeholder="Description"
-                  onChange={(e) =>
-                    setVideoData((prev) => ({
-                      ...prev,
-                      [course.id]: {
-                        ...prev[course.id],
-                        description: e.target.value,
-                      },
-                    }))
-                  }
-                />
+                        setCourses((prev) =>
+                          prev.map((c) =>
+                            c.id === course.id
+                              ? { ...c, published: false }
+                              : c
+                          )
+                        );
+                      } catch (err) {
+                        alert("Unpublish failed");
+                      }
+                    }}
+                  >
+                    Unpublish
+                  </button>
+                ) : (
+                  <button
+                    style={primaryButton}
+                    onClick={async () => {
+                      try {
+                        await axios.patch(
+                          `/users/creator/courses/${course.id}/publish`
+                        );
 
-                <input
-                  className="input"
-                  placeholder="YouTube URL"
-                  onChange={(e) =>
-                    setVideoData((prev) => ({
-                      ...prev,
-                      [course.id]: {
-                        ...prev[course.id],
-                        videoUrl: e.target.value,
-                      },
-                    }))
-                  }
-                />
-
-                <input
-                  className="input"
-                  type="number"
-                  placeholder="Order Index"
-                  onChange={(e) =>
-                    setVideoData((prev) => ({
-                      ...prev,
-                      [course.id]: {
-                        ...prev[course.id],
-                        orderIndex: parseInt(e.target.value),
-                      },
-                    }))
-                  }
-                />
+                        setCourses((prev) =>
+                          prev.map((c) =>
+                            c.id === course.id
+                              ? { ...c, published: true }
+                              : c
+                          )
+                        );
+                      } catch (err) {
+                        alert("Publish failed");
+                      }
+                    }}
+                  >
+                    Publish
+                  </button>
+                )}
 
                 <button
-                  className="button"
+                  style={dangerButton}
                   onClick={async () => {
+                    if (
+                      !window.confirm(
+                        "Delete this course and all videos?"
+                      )
+                    )
+                      return;
+
                     try {
-                      await axios.post(
-                        `/users/creator/courses/${course.id}/videos`,
-                        videoData[course.id]
+                      await axios.delete(
+                        `/users/creator/courses/${course.id}`
                       );
 
-                      alert("Video added successfully");
-
-                      setVideoForms((prev) => ({
-                        ...prev,
-                        [course.id]: false,
-                      }));
-
-                      loadVideos(course.id); // refresh video list
-                    } catch (err) {
-                      console.error("Add video error:", err);
-                      alert("Video creation failed");
+                      setCourses((prev) =>
+                        prev.filter(
+                          (c) => c.id !== course.id
+                        )
+                      );
+                    } catch {
+                      alert("Delete failed");
                     }
                   }}
                 >
-                  Submit Video
+                  Delete
+                </button>
+
+                <button
+                  style={secondaryButton}
+                  onClick={() =>
+                    setVideoForms((prev) => ({
+                      ...prev,
+                      [course.id]:
+                        !prev[course.id],
+                    }))
+                  }
+                >
+                  Add Video
                 </button>
               </div>
-            )}
 
-            {/* Video List */}
-            {videosMap[course.id] && (
-              <div style={{ marginTop: "20px" }}>
-                <h5>Course Videos</h5>
+              {/* VIDEO FORM */}
+              {videoForms[course.id] && (
+                <div style={{ marginTop: "20px" }}>
+                  <input
+                    placeholder="Video Title"
+                    style={inputStyle}
+                    onChange={(e) =>
+                      setVideoData((prev) => ({
+                        ...prev,
+                        [course.id]: {
+                          ...prev[course.id],
+                          title:
+                            e.target.value,
+                        },
+                      }))
+                    }
+                  />
 
-                {videosMap[course.id].length === 0 ? (
-                  <p>No videos yet</p>
-                ) : (
-                  videosMap[course.id].map((video) => (
+                  <input
+                    placeholder="Description"
+                    style={inputStyle}
+                    onChange={(e) =>
+                      setVideoData((prev) => ({
+                        ...prev,
+                        [course.id]: {
+                          ...prev[course.id],
+                          description:
+                            e.target.value,
+                        },
+                      }))
+                    }
+                  />
+
+                  <input
+                    placeholder="YouTube URL"
+                    style={inputStyle}
+                    onChange={(e) =>
+                      setVideoData((prev) => ({
+                        ...prev,
+                        [course.id]: {
+                          ...prev[course.id],
+                          videoUrl:
+                            e.target.value,
+                        },
+                      }))
+                    }
+                  />
+
+                  <button
+                    style={primaryButton}
+                    onClick={async () => {
+                      try {
+                        await axios.post(
+                          `/users/creator/courses/${course.id}/videos`,
+                          videoData[
+                            course.id
+                          ]
+                        );
+
+                        setVideoForms(
+                          (prev) => ({
+                            ...prev,
+                            [course.id]:
+                              false,
+                          })
+                        );
+
+                        loadVideos(
+                          course.id
+                        );
+                      } catch {
+                        alert(
+                          "Video creation failed"
+                        );
+                      }
+                    }}
+                  >
+                    Submit Video
+                  </button>
+                </div>
+              )}
+
+              {/* VIDEO LIST */}
+              {videosMap[course.id] &&
+                videosMap[course.id].map(
+                  (video) => (
                     <div
                       key={video.id}
-                      style={{
-                        border: "1px solid #eee",
-                        padding: "8px",
-                        marginBottom: "8px",
-                      }}
+                      style={videoItem}
                     >
-                      <strong>{video.title}</strong> —{" "}
-                      <span
-                        style={{
-                          color: video.published
-                            ? "green"
-                            : "orange",
-                        }}
-                      >
-                        {video.published
-                          ? "Published"
-                          : "Draft"}
+                      <span>
+                        {video.title}
                       </span>
 
-                      {!video.published && (
+                      <div>
+                        {!video.published && (
+                          <button
+                            style={
+                              primaryButton
+                            }
+                            onClick={async () => {
+                              try {
+                                await axios.patch(
+                                  `/users/creator/videos/${video.id}/publish`
+                                );
+
+                                loadVideos(
+                                  course.id
+                                );
+                              } catch {
+                                alert(
+                                  "Publish failed"
+                                );
+                              }
+                            }}
+                          >
+                            Publish
+                          </button>
+                        )}
+
                         <button
-                          className="button"
-                          style={{ marginLeft: "10px" }}
+                          style={
+                            dangerButton
+                          }
                           onClick={async () => {
+                            if (
+                              !window.confirm(
+                                "Delete this video?"
+                              )
+                            )
+                              return;
+
                             try {
-                              await axios.patch(
-                                `/users/creator/videos/${video.id}/publish`
+                              await axios.delete(
+                                `/users/creator/videos/${video.id}`
                               );
 
-                              setVideosMap((prev) => ({
-                                ...prev,
-                                [course.id]: prev[
-                                  course.id
-                                ].map((v) =>
-                                  v.id === video.id
-                                    ? {
-                                        ...v,
-                                        published: true,
-                                      }
-                                    : v
-                                ),
-                              }));
-                            } catch (err) {
-                              console.error(
-                                "Publish video error:",
-                                err
+                              loadVideos(
+                                course.id
                               );
+                            } catch {
                               alert(
-                                "Video publish failed"
+                                "Delete failed"
                               );
                             }
                           }}
                         >
-                          Publish Video
+                          Delete
                         </button>
-
-                        
-                      )}
-
-                      <button
-                        className="button"
-                        style={{
-                          backgroundColor: "#e74c3c",
-                          marginLeft: "10px",
-                        }}
-                        onClick={async () => {
-                          const confirmDelete = window.confirm(
-                            "Are you sure you want to delete this video?"
-                          );
-                          if (!confirmDelete) return;
-
-                          try {
-                            await axios.delete(
-                              `/users/creator/videos/${video.id}`
-                            );
-
-                            // 🔥 Remove instantly from UI
-                            setVideosMap((prev) => ({
-                              ...prev,
-                              [course.id]: prev[course.id].filter(
-                                (v) => v.id !== video.id
-                              ),
-                            }));
-                          } catch (err) {
-                            console.error("Delete error:", err);
-                            alert("Delete failed");
-                          }
-                        }}
-                      >
-                        Delete
-                      </button>
+                      </div>
                     </div>
-                  ))
+                  )
                 )}
-              </div>
-            )}
-          </div>
-        ))
-      )}
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
+
+/* ---------- STYLES ---------- */
+
+const pageStyle = {
+  background: "#0f0f0f",
+  minHeight: "100vh",
+  padding: "40px 0",
+  display: "flex",
+  justifyContent: "center",
+};
+
+const cardStyle = {
+  background: "#1c1c1c",
+  padding: "25px",
+  borderRadius: "16px",
+  marginTop: "20px",
+  boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+  color: "white",
+};
+
+const inputStyle = {
+  width: "100%",
+  padding: "10px",
+  marginBottom: "10px",
+  borderRadius: "8px",
+  border: "1px solid #333",
+  background: "#2a2a2a",
+  color: "white",
+};
+
+const primaryButton = {
+  padding: "8px 14px",
+  marginRight: "10px",
+  borderRadius: "8px",
+  border: "none",
+  background: "#ff2e63",
+  color: "white",
+  cursor: "pointer",
+};
+
+const secondaryButton = {
+  padding: "8px 14px",
+  marginRight: "10px",
+  borderRadius: "8px",
+  border: "none",
+  background: "#2a2a2a",
+  color: "white",
+  cursor: "pointer",
+};
+
+const dangerButton = {
+  padding: "8px 14px",
+  marginRight: "10px",
+  borderRadius: "8px",
+  border: "none",
+  background: "#e74c3c",
+  color: "white",
+  cursor: "pointer",
+};
+
+const badgeStyle = (published) => ({
+  padding: "4px 10px",
+  borderRadius: "20px",
+  fontSize: "12px",
+  background: published ? "#1f8f4e" : "#444",
+  color: "white",
+});
+
+const videoItem = {
+  marginTop: "10px",
+  padding: "10px",
+  background: "#2a2a2a",
+  borderRadius: "8px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+};
 
 export default CreatorDashboard;

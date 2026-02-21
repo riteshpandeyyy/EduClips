@@ -44,63 +44,149 @@ function StudentProfile() {
     }
   };
 
-  if (loading) return <div className="container">Loading...</div>;
-  if (!user) return <div className="container">User not found</div>;
+  if (loading)
+    return (
+      <div style={pageStyle}>
+        <p style={{ color: "white" }}>Loading...</p>
+      </div>
+    );
+
+  if (!user)
+    return (
+      <div style={pageStyle}>
+        <p style={{ color: "white" }}>User not found</p>
+      </div>
+    );
 
   return (
-    <div className="container">
+    <div style={pageStyle}>
+      <div style={{ width: "800px", maxWidth: "95%" }}>
 
-      {/* User Info */}
-      <div className="card">
-        <h2>{user.name}</h2>
-        <p>{user.email}</p>
+        {/* PROFILE HEADER */}
+        <div style={profileCard}>
+          <h2>{user.name}</h2>
+          <p style={{ color: "#aaa" }}>{user.email}</p>
+        </div>
+
+        {/* FOLLOWING SECTION */}
+        <h3 style={sectionTitle}>Following Creators</h3>
+
+        {following.length === 0 ? (
+          <p style={emptyText}>
+            You are not following anyone yet.
+          </p>
+        ) : (
+          following.map((creator) => (
+            <div key={creator.id} style={cardStyle}>
+              <div>
+                <h4>{creator.name}</h4>
+                <p style={{ color: "#bbb" }}>
+                  {creator.bio}
+                </p>
+              </div>
+
+              <div style={{ marginTop: "10px" }}>
+                <Link to={`/creator/${creator.id}`}>
+                  <button style={primaryButton}>
+                    View Profile
+                  </button>
+                </Link>
+
+                <button
+                  style={dangerButton}
+                  onClick={() =>
+                    handleUnfollow(creator.id)
+                  }
+                >
+                  Unfollow
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+
+        {/* LIKED VIDEOS */}
+        <h3 style={sectionTitle}>Liked Videos</h3>
+
+        {likedVideos.length === 0 ? (
+          <p style={emptyText}>
+            You haven't liked any videos yet.
+          </p>
+        ) : (
+          likedVideos.map((video) => (
+            <div key={video.id} style={cardStyle}>
+              <h4>{video.title}</h4>
+              <p style={{ color: "#bbb" }}>
+                {video.description}
+              </p>
+
+              <Link to={`/video/${video.id}`}>
+                <button style={primaryButton}>
+                  Watch
+                </button>
+              </Link>
+            </div>
+          ))
+        )}
       </div>
-
-      {/* Following Creators */}
-      <h3 style={{ marginTop: "30px" }}>Following Creators</h3>
-
-      {following.length === 0 ? (
-        <p>You are not following anyone yet.</p>
-      ) : (
-        following.map((creator) => (
-          <div key={creator.id} className="card">
-            <h4>{creator.name}</h4>
-            <p>{creator.bio}</p>
-
-            <Link to={`/creator/${creator.id}`}>
-              <button className="button">View Profile</button>
-            </Link>
-
-            <button
-              className="button"
-              style={{ marginLeft: "10px", backgroundColor: "#e74c3c" }}
-              onClick={() => handleUnfollow(creator.id)}
-            >
-              Unfollow
-            </button>
-          </div>
-        ))
-      )}
-
-      {/* Liked Videos */}
-      <h3 style={{ marginTop: "30px" }}>Liked Videos</h3>
-
-      {likedVideos.length === 0 ? (
-        <p>You haven't liked any videos yet.</p>
-      ) : (
-        likedVideos.map((video) => (
-          <div key={video.id} className="card">
-            <h4>{video.title}</h4>
-            <p>{video.description}</p>
-
-            <Link to={`/video/${video.id}`}>
-              <button className="button">Watch</button>
-            </Link>
-          </div>
-        ))
-      )}
     </div>
   );
 }
+
+/* ---------- STYLES ---------- */
+
+const pageStyle = {
+  background: "#0f0f0f",
+  minHeight: "100vh",
+  padding: "40px 0",
+  display: "flex",
+  justifyContent: "center",
+};
+
+const profileCard = {
+  background: "#1c1c1c",
+  padding: "30px",
+  borderRadius: "16px",
+  boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+  color: "white",
+};
+
+const sectionTitle = {
+  marginTop: "40px",
+  color: "white",
+};
+
+const cardStyle = {
+  background: "#1c1c1c",
+  padding: "20px",
+  borderRadius: "12px",
+  marginTop: "15px",
+  boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
+  color: "white",
+};
+
+const emptyText = {
+  color: "#777",
+  marginTop: "10px",
+};
+
+const primaryButton = {
+  padding: "8px 14px",
+  marginRight: "10px",
+  borderRadius: "8px",
+  border: "none",
+  background: "#ff2e63",
+  color: "white",
+  cursor: "pointer",
+};
+
+const dangerButton = {
+  padding: "8px 14px",
+  borderRadius: "8px",
+  border: "none",
+  background: "#e74c3c",
+  color: "white",
+  cursor: "pointer",
+};
 
 export default StudentProfile;

@@ -39,3 +39,9 @@ body {
   border-radius: 6px;
   border: 1px solid #ccc;
 }
+
+@keyframes spin{
+  to{
+    transform: rotate(360deg);
+  }
+}

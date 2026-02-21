@@ -10,7 +10,6 @@ function CreatorProfile() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // 🔥 Edit Mode States
   const [editMode, setEditMode] = useState(false);
   const [editedBio, setEditedBio] = useState("");
   const [editedExpertise, setEditedExpertise] = useState("");
@@ -24,16 +23,13 @@ function CreatorProfile() {
     try {
       setLoading(true);
 
-      // Get creator profile
       const profileRes = await axios.get(`/users/creators/${id}`);
       setCreator(profileRes.data);
       setIsFollowing(profileRes.data.followedByCurrentUser);
 
-      // 🔥 Set edit values
       setEditedBio(profileRes.data.bio);
       setEditedExpertise(profileRes.data.expertise);
 
-      // 🔥 Check if current user is owner
       try {
         const userRes = await axios.get("/users/me");
         if (userRes.data.creatorId === parseInt(id)) {
@@ -45,7 +41,6 @@ function CreatorProfile() {
         setIsOwner(false);
       }
 
-      // Get all published courses
       const coursesRes = await axios.get("/users/courses");
 
       const creatorCourses = coursesRes.data.filter(
@@ -57,7 +52,6 @@ function CreatorProfile() {
           const videosRes = await axios.get(
             `/users/courses/${course.id}/videos`
           );
-
           return {
             ...course,
             videos: videosRes.data,
@@ -66,7 +60,6 @@ function CreatorProfile() {
       );
 
       setCourses(coursesWithVideos);
-
     } catch (err) {
       console.error("Profile load error:", err);
     } finally {
@@ -96,7 +89,6 @@ function CreatorProfile() {
     }
   };
 
-  // 🔥 Update profile
   const handleUpdateProfile = async () => {
     try {
       const res = await axios.put("/users/creators/profile", {
@@ -116,100 +108,202 @@ function CreatorProfile() {
     }
   };
 
-  if (loading) return <div className="container">Loading...</div>;
-  if (!creator) return <div className="container">Creator not found</div>;
+  if (loading)
+    return (
+      <div style={pageStyle}>
+        <p style={{ color: "white" }}>Loading...</p>
+      </div>
+    );
+
+  if (!creator)
+    return (
+      <div style={pageStyle}>
+        <p style={{ color: "white" }}>Creator not found</p>
+      </div>
+    );
 
   return (
-    <div className="container">
+    <div style={pageStyle}>
+      <div style={{ width: "800px", maxWidth: "95%" }}>
+        
+        {/* PROFILE HEADER */}
+        <div style={profileCard}>
+          <h2 style={{ marginBottom: "10px" }}>
+            {creator.name}
+          </h2>
 
-      {/* Creator Info */}
-      <div className="card">
-        <h2>{creator.name}</h2>
+          {editMode ? (
+            <>
+              <input
+                value={editedBio}
+                onChange={(e) => setEditedBio(e.target.value)}
+                style={inputStyle}
+              />
+              <input
+                value={editedExpertise}
+                onChange={(e) => setEditedExpertise(e.target.value)}
+                style={{ ...inputStyle, marginTop: "10px" }}
+              />
+              <button
+                onClick={handleUpdateProfile}
+                style={primaryButton}
+              >
+                Save
+              </button>
+            </>
+          ) : (
+            <>
+              <p style={{ color: "#bbb" }}>
+                {creator.bio}
+              </p>
+              <p style={{ color: "#aaa", marginTop: "5px" }}>
+                <strong>Expertise:</strong> {creator.expertise}
+              </p>
+            </>
+          )}
 
-        {editMode ? (
-          <>
-            <input
-              className="input"
-              value={editedBio}
-              onChange={(e) => setEditedBio(e.target.value)}
-            />
-            <input
-              className="input"
-              value={editedExpertise}
-              onChange={(e) => setEditedExpertise(e.target.value)}
-              style={{ marginTop: "10px" }}
-            />
-            <button
-              className="button"
-              style={{ marginTop: "10px" }}
-              onClick={handleUpdateProfile}
-            >
-              Save
-            </button>
-          </>
-        ) : (
-          <>
-            <p>{creator.bio}</p>
-            <p><strong>Expertise:</strong> {creator.expertise}</p>
-          </>
-        )}
+          <p style={{ marginTop: "10px", color: "#888" }}>
+            {creator.followers} Followers
+          </p>
 
-        <p><strong>Followers:</strong> {creator.followers}</p>
+          <div style={{ marginTop: "15px" }}>
+            {!isOwner && (
+              <button
+                onClick={handleFollowToggle}
+                style={
+                  isFollowing
+                    ? secondaryButton
+                    : primaryButton
+                }
+              >
+                {isFollowing ? "Unfollow" : "Follow"}
+              </button>
+            )}
 
-        {/* Follow button (only if not owner) */}
-        {!isOwner && (
-          <button className="button" onClick={handleFollowToggle}>
-            {isFollowing ? "Unfollow" : "Follow"}
-          </button>
-        )}
-
-        {/* Edit button (only if owner) */}
-        {isOwner && (
-          <button
-            className="button"
-            style={{ marginLeft: "10px" }}
-            onClick={() => setEditMode(!editMode)}
-          >
-            {editMode ? "Cancel" : "Edit Profile"}
-          </button>
-        )}
-      </div>
-
-      {/* Courses */}
-      <h3 style={{ marginTop: "30px" }}>Published Courses</h3>
-
-      {courses.length === 0 ? (
-        <p>No courses yet</p>
-      ) : (
-        courses.map((course) => (
-          <div key={course.id} className="card">
-            <h4>{course.title}</h4>
-            <p>{course.description}</p>
-
-            {course.videos && course.videos.length === 0 ? (
-              <p>No videos yet</p>
-            ) : (
-              course.videos &&
-              course.videos.map((video) => (
-                <div
-                  key={video.id}
-                  style={{
-                    borderTop: "1px solid #ddd",
-                    padding: "10px 0",
-                  }}
-                >
-                  <p>{video.title}</p>
-                  <Link to={`/video/${video.id}`}>
-                    <button className="button">Watch</button>
-                  </Link>
-                </div>
-              ))
+            {isOwner && (
+              <button
+                onClick={() =>
+                  setEditMode(!editMode)
+                }
+                style={secondaryButton}
+              >
+                {editMode
+                  ? "Cancel"
+                  : "Edit Profile"}
+              </button>
             )}
           </div>
-        ))
-      )}
+        </div>
+
+        {/* COURSES */}
+        <h3 style={{ marginTop: "40px", color: "white" }}>
+          Published Courses
+        </h3>
+
+        {courses.length === 0 ? (
+          <p style={{ color: "#888" }}>
+            No courses yet
+          </p>
+        ) : (
+          courses.map((course) => (
+            <div key={course.id} style={courseCard}>
+              <h4>{course.title}</h4>
+              <p style={{ color: "#bbb" }}>
+                {course.description}
+              </p>
+
+              {course.videos &&
+                course.videos.map((video) => (
+                  <div
+                    key={video.id}
+                    style={videoItem}
+                  >
+                    <span>{video.title}</span>
+                    <Link
+                      to={`/video/${video.id}`}
+                      style={watchLink}
+                    >
+                      Watch →
+                    </Link>
+                  </div>
+                ))}
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
+
+/* ---------- STYLES ---------- */
+
+const pageStyle = {
+  background: "#0f0f0f",
+  minHeight: "100vh",
+  padding: "40px 0",
+  display: "flex",
+  justifyContent: "center",
+};
+
+const profileCard = {
+  background: "#1c1c1c",
+  padding: "30px",
+  borderRadius: "16px",
+  boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+  color: "white",
+};
+
+const courseCard = {
+  background: "#1c1c1c",
+  padding: "20px",
+  borderRadius: "12px",
+  marginTop: "20px",
+  color: "white",
+};
+
+const videoItem = {
+  marginTop: "10px",
+  padding: "10px",
+  background: "#2a2a2a",
+  borderRadius: "8px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+};
+
+const inputStyle = {
+  width: "100%",
+  padding: "10px",
+  borderRadius: "8px",
+  border: "1px solid #333",
+  background: "#2a2a2a",
+  color: "white",
+};
+
+const primaryButton = {
+  padding: "8px 16px",
+  borderRadius: "8px",
+  border: "none",
+  background: "#ff2e63",
+  color: "white",
+  cursor: "pointer",
+  fontWeight: "500",
+};
+
+const secondaryButton = {
+  padding: "8px 16px",
+  borderRadius: "8px",
+  border: "none",
+  background: "#2a2a2a",
+  color: "white",
+  cursor: "pointer",
+  fontWeight: "500",
+};
+
+const watchLink = {
+  color: "#ff2e63",
+  textDecoration: "none",
+  fontWeight: "500",
+};
 
 export default CreatorProfile;

@@ -1,13 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "../api/axios";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate, Link } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,71 +18,114 @@ function Login() {
     e.preventDefault();
 
     try {
-        const res = await axios.post("/users/login", {
+      const res = await axios.post("/users/login", {
         email,
         password,
-        });
+      });
 
-        const token = res.data.token;
+      const token = res.data.token;
+      localStorage.setItem("token", token);
 
-        localStorage.setItem("token", token);
-
-        // decode JWT
-        const payload = JSON.parse(atob(token.split(".")[1]));
-
-        // check what key contains role
-        const role =
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const role =
         payload.role ||
         payload.roles ||
         payload.authorities ||
         payload.auth;
 
-        localStorage.setItem("role", role);
+      localStorage.setItem("role", role);
 
-        if (role === "CREATOR" || role === "ROLE_CREATOR") {
+      if (role === "CREATOR" || role === "ROLE_CREATOR") {
         window.location.href = "/creator-check";
-        } else {
+      } else {
         window.location.href = "/feed";
-        }
-
+      }
     } catch (err) {
-        console.error(err);
-        alert("Login failed");
+      console.error(err);
+      alert("Login failed");
     }
-    };
+  };
 
   return (
-  <div className="container">
-    <div className="card">
-      <h2>Login</h2>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#0f0f0f",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        color: "white",
+      }}
+    >
+      <div
+        style={{
+          width: "380px",
+          background: "#1c1c1c",
+          padding: "40px",
+          borderRadius: "16px",
+          boxShadow: "0 0 40px rgba(0,0,0,0.6)",
+        }}
+      >
+        <h2 style={{ textAlign: "center", marginBottom: "30px" }}>
+          Welcome Back
+        </h2>
 
-      <form onSubmit={handleLogin}>
-        <input
-          className="input"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+        <form onSubmit={handleLogin}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            style={inputStyle}
+          />
 
-        <input
-          className="input"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={inputStyle}
+          />
 
-        <button className="button" type="submit">
-          Login
-        </button>
-      </form>
+          <button type="submit" style={buttonStyle}>
+            Login
+          </button>
+        </form>
 
-      <p style={{marginTop: "15px"}}>Don't have an account? <a href="/signup" style={{color:"#2563eb", fontWeight: "500"}}>Sign up</a>  </p>
+        <p style={{ marginTop: "20px", textAlign: "center" }}>
+          Don't have an account?{" "}
+          <Link to="/signup" style={{ color: "#ff2e63" }}>
+            Sign up
+          </Link>
+        </p>
+      </div>
     </div>
-  </div>
-);
+  );
 }
+
+const inputStyle = {
+  width: "100%",
+  padding: "12px",
+  marginBottom: "15px",
+  borderRadius: "8px",
+  border: "1px solid #333",
+  background: "#2a2a2a",
+  color: "white",
+  outline: "none",
+};
+
+const buttonStyle = {
+  width: "100%",
+  padding: "12px",
+  borderRadius: "8px",
+  border: "none",
+  background: "#ff2e63",
+  color: "white",
+  fontWeight: "600",
+  cursor: "pointer",
+  transition: "0.3s",
+};
 
 export default Login;
