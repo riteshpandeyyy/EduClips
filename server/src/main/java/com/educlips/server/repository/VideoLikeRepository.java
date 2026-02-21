@@ -5,6 +5,7 @@ import com.educlips.server.entity.UserEntity;
 import com.educlips.server.entity.VideoEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface VideoLikeRepository extends JpaRepository<VideoLikeEntity, Long> {
@@ -15,4 +16,6 @@ public interface VideoLikeRepository extends JpaRepository<VideoLikeEntity, Long
     );
 
     long countByVideo(VideoEntity video);
+
+    List<VideoLikeEntity> findByUser(UserEntity user);
 }

@@ -20,11 +20,17 @@ function Navbar() {
   }}
 >
   <div>
-    <Link to="/feed">Feed</Link>
+    <Link to="/feed">Home</Link>
     {role === "CREATOR" && (
       <>
         {" | "}
         <Link to="/creator-check">Dashboard</Link>
+      </>
+    )}
+    {role === "STUDENT" && (
+      <>
+      {" | "}
+      <Link to="/profile">Profile</Link>
       </>
     )}
   </div>

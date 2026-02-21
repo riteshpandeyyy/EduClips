@@ -467,4 +467,16 @@ public class UserController {
         userService.deleteVideo(authentication.getName(), videoId);
         return "Video deleted successfully";
         }
+
+        @GetMapping("/me/liked-videos")
+        public List<VideoResponse> getLikedVideos(Authentication authentication) {
+
+        return userService.getLikedVideos(authentication.getName());
+        }
+
+        @GetMapping("/me/following")
+        public List<CreatorPublicResponse> getFollowingCreators(Authentication authentication) {
+
+        return userService.getFollowingCreators(authentication.getName());
+        }
 }

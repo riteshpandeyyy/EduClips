@@ -9,6 +9,7 @@ import CreatorCheck from "./pages/CreatorCheck";
 import CreateProfile from "./pages/CreateProfile";
 import CreatorDashboard from "./pages/CreatorDashboard";
 import CreatorProfile from "./pages/CreatorProfile";
+import StudentProfile from "./pages/StudentProfile";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/create-profile" element={<CreateProfile />} />
         <Route path="/dashboard" element={<CreatorDashboard />} />
         <Route path="/creator/:id" element={<CreatorProfile />} />
+        <Route path="/profile" element={<StudentProfile />} />
       </Routes>
     </BrowserRouter>
   );

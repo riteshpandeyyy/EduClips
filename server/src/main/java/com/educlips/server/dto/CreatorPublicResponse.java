@@ -2,6 +2,7 @@ package com.educlips.server.dto;
 
 public class CreatorPublicResponse {
 
+    private Long id;
     private String name;
     private String bio;
     private String expertise;
@@ -11,6 +12,7 @@ public class CreatorPublicResponse {
     private boolean followedByCurrentUser;
 
     public CreatorPublicResponse(
+            Long id,
             String name,
             String bio,
             String expertise,
@@ -19,6 +21,7 @@ public class CreatorPublicResponse {
             long totalVideos,
             boolean followedByCurrentUser
     ) {
+        this.id = id;
         this.name = name;
         this.bio = bio;
         this.expertise = expertise;
@@ -28,6 +31,7 @@ public class CreatorPublicResponse {
         this.followedByCurrentUser = followedByCurrentUser;
     }
 
+    public Long getId() { return id; }
     public String getName() { return name; }
     public String getBio() { return bio; }
     public String getExpertise() { return expertise; }

@@ -234,6 +234,7 @@ public class UserService {
 
 
         return new CreatorPublicResponse(
+                profile.getId(),
                 creatorUser.getName(),
                 profile.getBio(),
                 profile.getExpertise(),
@@ -764,6 +765,59 @@ public class UserService {
         }
 
         videoRepository.delete(video);
+        }
+
+        public List<VideoResponse> getLikedVideos(String email) {
+
+                UserEntity user = userRepository.findByEmail(email)
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+
+                return videoLikeRepository.findByUser(user)
+                        .stream()
+                        .map(like -> {
+                                VideoEntity video = like.getVideo();
+
+                                return new VideoResponse(
+                                        video.getId(),
+                                        video.getTitle(),
+                                        video.getDescription(),
+                                        video.getVideoUrl(),
+                                        video.getCourse().getId(),
+                                        video.isPublished(),
+                                        videoLikeRepository.countByVideo(video),
+                                        true, 
+                                        0,
+                                        0L,
+                                        video.getViewCount(),
+                                        video.getCourse().getCreator().getId(),
+                                        video.getCourse().getCreator().getUser().getName()
+                                );
+                        })
+                        .toList();
+        }
+
+        public List<CreatorPublicResponse> getFollowingCreators(String email) {
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return creatorFollowRepository.findByUser(user)
+                .stream()
+                .map(follow -> {
+                        CreatorProfileEntity creator = follow.getCreator();
+
+                        return new CreatorPublicResponse(
+                                creator.getId(),
+                                creator.getUser().getName(),
+                                creator.getBio(),
+                                creator.getExpertise(),
+                                creator.getFollowersCount(),
+                                0,
+                                0,
+                                true
+                        );
+                })
+                .toList();
         }
 
 }
