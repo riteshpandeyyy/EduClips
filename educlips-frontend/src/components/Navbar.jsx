@@ -6,6 +6,7 @@ function Navbar() {
 
   const handleLogout = () => {
     logout();
+    localStorage.clear();
     window.location.href = "/";
   };
 
@@ -22,11 +23,15 @@ function Navbar() {
   <div>
     <Link to="/feed">Home</Link>
     {role === "CREATOR" && (
-      <>
-        {" | "}
-        <Link to="/creator-check">Dashboard</Link>
-      </>
-    )}
+    <>
+      {" | "}
+      <Link to="/dashboard">Dashboard</Link>
+
+      {" | "}
+      <Link
+        to="/my-profile">My Profile</Link>
+    </>
+  )}
     {role === "STUDENT" && (
       <>
       {" | "}

@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import axios from "../api/axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Feed() {
   const [videos, setVideos] = useState([]);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [playingId, setPlayingId] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadVideos(0);
@@ -25,7 +28,6 @@ function Feed() {
       if (pageNumber === 0) {
         setVideos(newVideos);
       } else {
-        // prevent duplicates
         setVideos((prev) => {
           const existingIds = new Set(prev.map((v) => v.id));
           const filteredNew = newVideos.filter(
@@ -37,7 +39,6 @@ function Feed() {
 
       setHasMore(!res.data.last);
       setPage(pageNumber);
-
     } catch (err) {
       console.error("Feed load error:", err);
     } finally {
@@ -53,7 +54,6 @@ function Feed() {
         await axios.post(`/users/videos/${videoId}/like`);
       }
 
-      // Optimistic UI update
       setVideos((prev) =>
         prev.map((v) =>
           v.id === videoId
@@ -72,6 +72,13 @@ function Feed() {
     }
   };
 
+  const extractVideoId = (url) => {
+    const regExp =
+      /(?:youtube\.com\/.*v=|youtu\.be\/)([^&]+)/;
+    const match = url.match(regExp);
+    return match ? match[1] : "";
+  };
+
   return (
     <div className="container">
       <h2>Feed</h2>
@@ -81,6 +88,37 @@ function Feed() {
       ) : (
         videos.map((v) => (
           <div key={v.id} className="card">
+
+            <div
+              style={{
+                position: "relative",
+                width: "100%",
+                maxWidth: "350px",
+                margin: "auto",
+                cursor: "pointer"
+              }}
+              onMouseEnter={() => setPlayingId(v.id)}
+              onMouseLeave={() => setPlayingId(null)}
+              onClick={() => navigate(`/video/${v.id}`)}
+            >
+              <iframe
+                src={`https://www.youtube.com/embed/${extractVideoId(
+                  v.videoUrl
+                )}?${playingId === v.id
+                    ? "autoplay=1&mute=1&controls=0"
+                    : "autoplay=0&mute=1&controls=0"
+                  }`}
+                frameBorder="0"
+                allow="autoplay"
+                style={{
+                  width: "100%",
+                  height: "500px",
+                  borderRadius: "15px",
+                  pointerEvents: "none"  
+                }}
+              ></iframe>
+            </div>
+
             <h3>{v.title}</h3>
 
             <p>
@@ -91,6 +129,7 @@ function Feed() {
                     color: "#3498db",
                     cursor: "pointer",
                   }}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   {v.creatorName}
                 </strong>
@@ -120,20 +159,21 @@ function Feed() {
                   : "Like"}
               </button>
 
-              <Link to={`/video/${v.id}`}>
-                <button
-                  className="button"
-                  style={{ marginLeft: "10px" }}
-                >
-                  Watch
-                </button>
-              </Link>
+              {/* 🔥 Comment Button instead of Watch */}
+              <button
+                className="button"
+                style={{ marginLeft: "10px" }}
+                onClick={() =>
+                  navigate(`/video/${v.id}`)
+                }
+              >
+                Comment
+              </button>
             </div>
           </div>
         ))
       )}
 
-      {/* Load More Button */}
       {hasMore && (
         <div style={{ marginTop: "20px" }}>
           <button

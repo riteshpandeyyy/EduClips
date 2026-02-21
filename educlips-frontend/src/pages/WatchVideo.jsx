@@ -89,17 +89,48 @@ function WatchVideo() {
   if (!video)
     return <div className="container">Video not found</div>;
 
+  const extractVideoId = (url) => {
+  const regExp =
+      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return match && match[2].length === 11 ? match[2] : null;
+  };
+
   return (
     <div className="container">
       <div className="card">
-        <h2>{video.title}</h2>
-        <p>{video.description}</p>
+         <h2>{video.title}</h2>
+          <p>{video.description}</p>
 
-        <p>
-          ❤️ {video.likeCount} &nbsp;&nbsp;
-          👁 {video.viewCount} &nbsp;&nbsp;
-          💬 {video.commentCount}
-        </p>
+          {/* YouTube Embed */}
+          <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: "20px",
+          }}
+        >
+          <iframe
+            src={`https://www.youtube.com/embed/${extractVideoId(
+              video.videoUrl
+            )}`}
+            title="YouTube video player"
+            frameBorder="0"
+            allowFullScreen
+            style={{
+              height: "80vh",          
+              aspectRatio: "9 / 16",  
+              borderRadius: "15px",
+            }}
+          ></iframe>
+        </div>
+
+          <p style={{ marginTop: "10px" }}>
+            ❤️ {video.likeCount} &nbsp;&nbsp;
+            👁 {video.viewCount} &nbsp;&nbsp;
+            💬 {video.commentCount}
+          </p>
 
         <button className="button" onClick={handleLikeToggle}>
           {video.likedByCurrentUser ? "Unlike" : "Like"}
