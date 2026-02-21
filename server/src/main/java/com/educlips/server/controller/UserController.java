@@ -367,7 +367,7 @@ public class UserController {
         }
 
         @GetMapping("/feed")
-        public List<VideoResponse> getFeed(
+        public Page<VideoResponse> getFeed(
                 @RequestParam(defaultValue = "0") int page,
                 @RequestParam(defaultValue = "5") int size,
                 Authentication authentication

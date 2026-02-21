@@ -39,6 +39,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.PageImpl;
 
 import com.educlips.server.repository.CommentRepository;
 import com.educlips.server.entity.CommentEntity;
@@ -470,13 +471,12 @@ public class UserService {
         return videoRepository.save(video);
     }
 
-     public List<VideoResponse> getPersonalisedFeed(
+     public Page<VideoResponse> getPersonalisedFeed(
                 String email,
                 int page,
                 int size
         ) {
 
-        // Fetch larger batch
         List<VideoEntity> allVideos =
                 videoRepository.findByPublishedTrueOrderByIdDesc();
 
@@ -487,7 +487,6 @@ public class UserService {
 
         UserEntity finalUser = user;
 
-        // Score all
         List<VideoResponse> scoredVideos = allVideos.stream().map(video -> {
 
                 long likeCount = videoLikeRepository.countByVideo(video);
@@ -552,16 +551,27 @@ public class UserService {
         }).sorted((a, b) -> Integer.compare(b.getScore(), a.getScore()))
         .toList();
 
+
         // Manual pagination AFTER sorting
-        int start = page * size;
-        int end = Math.min(start + size, scoredVideos.size());
+        Pageable pageable = PageRequest.of(page, size);
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), scoredVideos.size());
+
+        List<VideoResponse> paginatedList;
 
         if (start > scoredVideos.size()) {
-                return List.of();
+                paginatedList = List.of();
+        } else {
+                paginatedList = scoredVideos.subList(start, end);
         }
 
-        return scoredVideos.subList(start, end);
-    }
+        return new PageImpl<>(
+                paginatedList,
+                pageable,
+                scoredVideos.size()
+        );
+        }
 
     public void likeVideo(String email, Long videoId) {
 
