@@ -3,6 +3,7 @@ package com.educlips.server.controller;
 import com.educlips.server.dto.LoginRequest;
 import com.educlips.server.dto.LoginResponse;
 import com.educlips.server.dto.SignupRequest;
+import com.educlips.server.dto.UpdateCreatorProfileRequest;
 import com.educlips.server.dto.UserResponse;
 import com.educlips.server.dto.VideoResponse;
 import com.educlips.server.entity.UserEntity;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,6 +26,8 @@ import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -39,14 +43,18 @@ import com.educlips.server.entity.CourseEntity;
 import com.educlips.server.entity.CreatorProfileEntity;
 import com.educlips.server.dto.CreateCommentRequest;
 import com.educlips.server.dto.CommentResponse;
+import com.educlips.server.repository.CreatorProfileRepository;
 import java.util.List;
 
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
-
+    
+    @Autowired
     private final UserService userService;
+    @Autowired
+    private final CreatorProfileRepository creatorProfileRepository;
 
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/test")
@@ -55,7 +63,8 @@ public class UserController {
                 1L,
                 "Ritesh",
                 "ritesh@email.com",
-                "STUDENT"
+                "STUDENT",
+                1L
         );
     }
 
@@ -74,14 +83,27 @@ public class UserController {
 
         String email = authentication.getName(); // extracted from JWT
         UserEntity user = userService.getCurrentUser(email);
+        Long creatorId = null;
 
-        return new UserResponse(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getRole().name()
-        );
-    }
+        if (user.getRole().name().equals("CREATOR")) {
+
+        CreatorProfileEntity creator =
+                creatorProfileRepository.findByUser(user)
+                        .orElse(null);
+
+        if (creator != null) {
+                creatorId = creator.getId();
+        }
+        }
+
+                return new UserResponse(
+                        user.getId(),
+                        user.getName(),
+                        user.getEmail(),
+                        user.getRole().name(),
+                        creatorId != null ? creatorId : 0L
+                );
+        }
 
     @PreAuthorize("hasRole('CREATOR')")
     @GetMapping("/creator-only")
@@ -126,9 +148,10 @@ public class UserController {
     
     private final CreatorProfileMapper creatorProfileMapper;
     
-     public UserController(UserService userService, CreatorProfileMapper creatorProfileMapper) {
+     public UserController(UserService userService, CreatorProfileMapper creatorProfileMapper, CreatorProfileRepository creatorProfileRepository) {
         this.userService = userService;
         this.creatorProfileMapper = creatorProfileMapper;
+        this.creatorProfileRepository = creatorProfileRepository;
     }
 
     @PreAuthorize("hasRole('CREATOR')")
@@ -478,5 +501,30 @@ public class UserController {
         public List<CreatorPublicResponse> getFollowingCreators(Authentication authentication) {
 
         return userService.getFollowingCreators(authentication.getName());
+        }
+
+        @PreAuthorize("hasRole('CREATOR')")
+        @PutMapping("/creators/profile")
+        public CreatorPublicResponse updateCreatorProfile(
+                @RequestBody UpdateCreatorProfileRequest request,
+                Authentication authentication
+        ) {
+
+        CreatorProfileEntity updated =
+                userService.updateCreatorProfile(
+                        authentication.getName(),
+                        request
+                );
+
+        return new CreatorPublicResponse(
+                updated.getId(),
+                updated.getUser().getName(),
+                updated.getBio(),
+                updated.getExpertise(),
+                updated.getFollowersCount(),
+                0L,
+                0l,
+                false
+        );
         }
 }

@@ -10,6 +10,12 @@ function CreatorProfile() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // 🔥 Edit Mode States
+  const [editMode, setEditMode] = useState(false);
+  const [editedBio, setEditedBio] = useState("");
+  const [editedExpertise, setEditedExpertise] = useState("");
+  const [isOwner, setIsOwner] = useState(false);
+
   useEffect(() => {
     loadProfile();
   }, [id]);
@@ -23,15 +29,29 @@ function CreatorProfile() {
       setCreator(profileRes.data);
       setIsFollowing(profileRes.data.followedByCurrentUser);
 
+      // 🔥 Set edit values
+      setEditedBio(profileRes.data.bio);
+      setEditedExpertise(profileRes.data.expertise);
+
+      // 🔥 Check if current user is owner
+      try {
+        const userRes = await axios.get("/users/me");
+        if (userRes.data.creatorId === parseInt(id)) {
+          setIsOwner(true);
+        } else {
+          setIsOwner(false);
+        }
+      } catch {
+        setIsOwner(false);
+      }
+
       // Get all published courses
       const coursesRes = await axios.get("/users/courses");
 
-      // Filter this creator's courses
       const creatorCourses = coursesRes.data.filter(
         (c) => c.creatorId === parseInt(id)
       );
 
-      // Fetch videos for each course
       const coursesWithVideos = await Promise.all(
         creatorCourses.map(async (course) => {
           const videosRes = await axios.get(
@@ -76,21 +96,83 @@ function CreatorProfile() {
     }
   };
 
+  // 🔥 Update profile
+  const handleUpdateProfile = async () => {
+    try {
+      const res = await axios.put("/users/creators/profile", {
+        bio: editedBio,
+        expertise: editedExpertise,
+      });
+
+      setCreator((prev) => ({
+        ...prev,
+        bio: res.data.bio,
+        expertise: res.data.expertise,
+      }));
+
+      setEditMode(false);
+    } catch (err) {
+      console.error("Update error:", err);
+    }
+  };
+
   if (loading) return <div className="container">Loading...</div>;
   if (!creator) return <div className="container">Creator not found</div>;
 
   return (
     <div className="container">
+
       {/* Creator Info */}
       <div className="card">
         <h2>{creator.name}</h2>
-        <p>{creator.bio}</p>
-        <p><strong>Expertise:</strong> {creator.expertise}</p>
+
+        {editMode ? (
+          <>
+            <input
+              className="input"
+              value={editedBio}
+              onChange={(e) => setEditedBio(e.target.value)}
+            />
+            <input
+              className="input"
+              value={editedExpertise}
+              onChange={(e) => setEditedExpertise(e.target.value)}
+              style={{ marginTop: "10px" }}
+            />
+            <button
+              className="button"
+              style={{ marginTop: "10px" }}
+              onClick={handleUpdateProfile}
+            >
+              Save
+            </button>
+          </>
+        ) : (
+          <>
+            <p>{creator.bio}</p>
+            <p><strong>Expertise:</strong> {creator.expertise}</p>
+          </>
+        )}
+
         <p><strong>Followers:</strong> {creator.followers}</p>
 
-        <button className="button" onClick={handleFollowToggle}>
-          {isFollowing ? "Unfollow" : "Follow"}
-        </button>
+        {/* Follow button (only if not owner) */}
+        {!isOwner && (
+          <button className="button" onClick={handleFollowToggle}>
+            {isFollowing ? "Unfollow" : "Follow"}
+          </button>
+        )}
+
+        {/* Edit button (only if owner) */}
+        {isOwner && (
+          <button
+            className="button"
+            style={{ marginLeft: "10px" }}
+            onClick={() => setEditMode(!editMode)}
+          >
+            {editMode ? "Cancel" : "Edit Profile"}
+          </button>
+        )}
       </div>
 
       {/* Courses */}
@@ -104,7 +186,6 @@ function CreatorProfile() {
             <h4>{course.title}</h4>
             <p>{course.description}</p>
 
-            {/* Videos under course */}
             {course.videos && course.videos.length === 0 ? (
               <p>No videos yet</p>
             ) : (

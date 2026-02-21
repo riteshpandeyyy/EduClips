@@ -6,6 +6,7 @@ import com.educlips.server.dto.CreateVideoRequest;
 import com.educlips.server.dto.CreatorPublicResponse;
 import com.educlips.server.dto.LoginResponse;
 import com.educlips.server.dto.SignupRequest;
+import com.educlips.server.dto.UpdateCreatorProfileRequest;
 import com.educlips.server.dto.UserResponse;
 import com.educlips.server.dto.VideoResponse;
 
@@ -114,7 +115,8 @@ public class UserService {
             savedUser.getId(),
             savedUser.getName(),
             savedUser.getEmail(),
-            savedUser.getRole().name()
+            savedUser.getRole().name(),
+            savedUser.getRole() == UserRole.CREATOR ? savedUser.getId() : 0L
     );
 }
 
@@ -153,7 +155,10 @@ public class UserService {
                     user.getId(),
                     user.getName(),
                     user.getEmail(),
-                    user.getRole().name()
+                    user.getRole().name(),
+                    creatorProfileRepository.findByUser(user)
+                                .map(CreatorProfileEntity::getId)
+                                .orElse(0L)
             ));
     }
 
@@ -164,7 +169,10 @@ public class UserService {
                         user.getId(),
                         user.getName(),
                         user.getEmail(),
-                        user.getRole().name()
+                        user.getRole().name(),
+                        creatorProfileRepository.findByUser(user)
+                                .map(CreatorProfileEntity::getId)
+                                .orElse(0L)
                 ));
     }
 
@@ -828,6 +836,24 @@ public class UserService {
                         );
                 })
                 .toList();
+        }
+
+        public CreatorProfileEntity updateCreatorProfile(
+                String email,
+                UpdateCreatorProfileRequest request
+        ) {
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        CreatorProfileEntity profile = creatorProfileRepository
+                .findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Creator profile not found"));
+
+        profile.setBio(request.getBio());
+        profile.setExpertise(request.getExpertise());
+
+        return creatorProfileRepository.save(profile);
         }
 
 }

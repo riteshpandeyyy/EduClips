@@ -6,12 +6,14 @@ public class UserResponse {
     private String name;
     private String email;
     private String role;
+    private long creatorId;
 
-    public UserResponse(Long id, String name, String email, String role) {
+    public UserResponse(Long id, String name, String email, String role, Long creatorId) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.role = role;
+        this.creatorId = creatorId;
     }
 
     public Long getId() {
@@ -28,5 +30,9 @@ public class UserResponse {
 
     public String getRole() {
         return role;
+    }
+
+    public long getCreatorId() {
+        return creatorId;
     }
 }
