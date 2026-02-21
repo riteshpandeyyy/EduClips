@@ -110,48 +110,107 @@ function CreatorDashboard() {
         <p>No courses yet</p>
       ) : (
         courses.map((course) => (
-          <div key={course.id} className="card">
-            <h4>{course.title}</h4>
-            <p>{course.description}</p>
-            <p>Category: {course.category}</p>
+        <div key={course.id} className="card">
+          <h4>{course.title}</h4>
+          <p>{course.description}</p>
+          <p>Category: {course.category}</p>
 
-            <p>
-              Status:{" "}
-              <strong
-                style={{
-                  color: course.published ? "green" : "red",
-                }}
-              >
-                {course.published ? "Published" : "Draft"}
-              </strong>
-            </p>
+          <p>
+            Status:{" "}
+            <strong
+              style={{
+                color: course.published ? "green" : "red",
+              }}
+            >
+              {course.published ? "Published" : "Draft"}
+            </strong>
+          </p>
 
-            {/* Publish Course */}
-            {!course.published && (
-              <button
-                className="button"
-                onClick={async () => {
-                  try {
-                    await axios.patch(
-                      `/users/creator/courses/${course.id}/publish`
-                    );
+          {/* 🔥 Publish / Unpublish */}
+          {course.published ? (
+            <button
+              className="button"
+              onClick={async () => {
+                try {
+                  await axios.post(
+                    `/users/creator/courses/${course.id}/unpublish`
+                  );
 
-                    setCourses((prev) =>
-                      prev.map((c) =>
-                        c.id === course.id
-                          ? { ...c, published: true }
-                          : c
-                      )
-                    );
-                  } catch (err) {
-                    console.error("Publish course error:", err);
-                    alert("Publish failed");
-                  }
-                }}
-              >
-                Publish Course
-              </button>
-            )}
+                  setCourses((prev) =>
+                    prev.map((c) =>
+                      c.id === course.id
+                        ? { ...c, published: false }
+                        : c
+                    )
+                  );
+                } catch (err) {
+                  console.error("Unpublish error:", err);
+                  alert("Unpublish failed");
+                }
+              }}
+            >
+              Unpublish
+            </button>
+          ) : (
+            <button
+              className="button"
+              onClick={async () => {
+                try {
+                  await axios.patch(
+                    `/users/creator/courses/${course.id}/publish`
+                  );
+
+                  setCourses((prev) =>
+                    prev.map((c) =>
+                      c.id === course.id
+                        ? { ...c, published: true }
+                        : c
+                    )
+                  );
+                } catch (err) {
+                  console.error("Publish error:", err);
+                  alert("Publish failed");
+                }
+              }}
+            >
+              Publish
+            </button>
+          )}
+
+          {/* 🔥 Delete Course */}
+          <button
+            className="button"
+            style={{
+              backgroundColor: "#e74c3c",
+              marginLeft: "10px",
+            }}
+            onClick={async () => {
+              const confirmDelete = window.confirm(
+                "Are you sure you want to delete this course? This will delete all videos."
+              );
+
+              if (!confirmDelete) return;
+
+              try {
+                await axios.delete(
+                  `/users/creator/courses/${course.id}`
+                );
+
+                // Remove instantly from UI
+                setCourses((prev) =>
+                  prev.filter((c) => c.id !== course.id)
+                );
+
+              } catch (err) {
+                console.error("Delete error:", err);
+                alert("Delete failed");
+              }
+            }}
+          >
+            Delete
+          </button>
+
+    {/* 🔥 Videos Section (Keep Your Existing Code Below) */}
 
             {/* Add Video Button */}
             <button

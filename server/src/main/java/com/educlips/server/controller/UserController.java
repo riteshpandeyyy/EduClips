@@ -2,6 +2,7 @@ package com.educlips.server.controller;
 
 import com.educlips.server.dto.LoginRequest;
 import com.educlips.server.dto.LoginResponse;
+import com.educlips.server.dto.SearchResponse;
 import com.educlips.server.dto.SignupRequest;
 import com.educlips.server.dto.UpdateCreatorProfileRequest;
 import com.educlips.server.dto.UserResponse;
@@ -246,26 +247,6 @@ public class UserController {
         );
         }
 
-        @PreAuthorize("hasRole('CREATOR')")
-        @PatchMapping("/creator/courses/{courseId}/unpublish")
-        public CourseResponse unpublishCourse(
-                @PathVariable Long courseId,
-                Authentication authentication
-        ) {
-        CourseEntity course = userService.unpublishCourse(
-                courseId,
-                authentication.getName()
-        );
-
-        return new CourseResponse(
-                course.getId(),
-                course.getTitle(),
-                course.getDescription(),
-                course.getCategory(),
-                course.isPublished(),
-                course.getCreator().getId()
-        );
-        }
 
         @PreAuthorize("hasRole('CREATOR')")
         @PostMapping("/creator/courses/{courseId}/videos")
@@ -526,5 +507,32 @@ public class UserController {
                 0l,
                 false
         );
+        }
+
+        @GetMapping("/search")
+        public SearchResponse search(
+                @RequestParam String keyword
+        ) {
+        return userService.search(keyword);
+        }
+
+        @PostMapping("/creator/courses/{courseId}/unpublish")
+        @PreAuthorize("hasRole('CREATOR')")
+        public String unpublishCourse(
+                @PathVariable Long courseId,
+                Authentication authentication
+        ) {
+        userService.unpublishCourse(authentication.getName(), courseId);
+        return "Course unpublished";
+        }
+
+        @DeleteMapping("/creator/courses/{courseId}")
+        @PreAuthorize("hasRole('CREATOR')")
+        public String deleteCourse(
+                @PathVariable Long courseId,
+                Authentication authentication
+        ) {
+        userService.deleteCourse(authentication.getName(), courseId);
+        return "Course deleted";
         }
 }

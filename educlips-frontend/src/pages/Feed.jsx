@@ -73,10 +73,18 @@ function Feed() {
   };
 
   const extractVideoId = (url) => {
+    if (!url) return null;
+
+    // handle shorts
+    if (url.includes("shorts/")) {
+      return url.split("shorts/")[1].split("?")[0];
+    }
+
     const regExp =
-      /(?:youtube\.com\/.*v=|youtu\.be\/)([^&]+)/;
+      /^.*(youtu.be\/|v\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+
     const match = url.match(regExp);
-    return match ? match[1] : "";
+    return match && match[2].length === 11 ? match[2] : null;
   };
 
   return (

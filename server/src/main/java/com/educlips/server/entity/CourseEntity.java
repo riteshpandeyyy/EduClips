@@ -2,6 +2,7 @@ package com.educlips.server.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "courses")
@@ -26,6 +27,9 @@ public class CourseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
     private CreatorProfileEntity creator;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VideoEntity> videos;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

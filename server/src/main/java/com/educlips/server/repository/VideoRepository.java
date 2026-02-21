@@ -18,4 +18,6 @@ public interface VideoRepository extends JpaRepository<VideoEntity, Long> {
     Page<VideoEntity> findByPublishedTrueOrderByIdDesc(Pageable pageable);
     List<VideoEntity> findByPublishedTrueOrderByIdDesc();
     long countByCourse_Creator(CreatorProfileEntity creator);
+
+    List<VideoEntity> findByPublishedTrueAndTitleContainingIgnoreCase(String keyword);
 }

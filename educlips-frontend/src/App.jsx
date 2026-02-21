@@ -11,6 +11,7 @@ import CreatorDashboard from "./pages/CreatorDashboard";
 import CreatorProfile from "./pages/CreatorProfile";
 import StudentProfile from "./pages/StudentProfile";
 import MyProfileRedirect from "./pages/MyProfileRedirect";
+import Search from "./pages/Search";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/creator/:id" element={<CreatorProfile />} />
         <Route path="/profile" element={<StudentProfile />} />
         <Route path="/my-profile" element={<MyProfileRedirect />} />
+        <Route path="/search" element={<Search />} />
       </Routes>
     </BrowserRouter>
   );

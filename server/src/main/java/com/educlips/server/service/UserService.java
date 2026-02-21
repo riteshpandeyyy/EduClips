@@ -5,6 +5,7 @@ import com.educlips.server.dto.CreateCreatorProfileRequest;
 import com.educlips.server.dto.CreateVideoRequest;
 import com.educlips.server.dto.CreatorPublicResponse;
 import com.educlips.server.dto.LoginResponse;
+import com.educlips.server.dto.SearchResponse;
 import com.educlips.server.dto.SignupRequest;
 import com.educlips.server.dto.UpdateCreatorProfileRequest;
 import com.educlips.server.dto.UserResponse;
@@ -854,6 +855,82 @@ public class UserService {
         profile.setExpertise(request.getExpertise());
 
         return creatorProfileRepository.save(profile);
+        }
+
+        public SearchResponse search(String keyword) {
+
+    List<VideoEntity> videoEntities =
+            videoRepository
+                    .findByPublishedTrueAndTitleContainingIgnoreCase(keyword);
+
+    List<VideoResponse> videos = videoEntities.stream()
+            .map(video -> new VideoResponse(
+                    video.getId(),
+                    video.getTitle(),
+                    video.getDescription(),
+                    video.getVideoUrl(),
+                    video.getCourse().getId(),
+                    video.isPublished(),
+                    0L,
+                    false,
+                    0,
+                    0L,
+                    video.getViewCount(),
+                    video.getCourse().getCreator().getId(),
+                    video.getCourse().getCreator().getUser().getName()
+            ))
+            .toList();
+
+    List<CreatorProfileEntity> creatorsEntities =
+                creatorProfileRepository
+                        .findByUser_NameContainingIgnoreCase(keyword);
+
+        List<CreatorPublicResponse> creators =
+                creatorsEntities.stream()
+                        .map(c -> new CreatorPublicResponse(
+                                c.getId(),
+                                c.getUser().getName(),
+                                c.getBio(),
+                                c.getExpertise(),
+                                c.getFollowersCount(),
+                                0L,
+                                0L,
+                                false
+                        ))
+                        .toList();
+
+        return new SearchResponse(videos, creators);
+        }
+
+        public void unpublishCourse(String email, Long courseId) {
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow();
+
+        CourseEntity course = courseRepository.findById(courseId)
+                .orElseThrow();
+
+        if (!course.getCreator().getUser().getId().equals(user.getId())) {
+                throw new RuntimeException("Unauthorized");
+        }
+
+        course.setPublished(false);
+        courseRepository.save(course);
+        }
+
+        public void deleteCourse(String email, Long courseId) {
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow();
+
+        CourseEntity course = courseRepository.findById(courseId)
+                .orElseThrow();
+
+        if (!course.getCreator().getUser().getId().equals(user.getId())) {
+                throw new RuntimeException("Unauthorized");
+        }
+
+        courseRepository.delete(course);
         }
 
 }

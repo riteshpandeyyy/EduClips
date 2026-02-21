@@ -44,7 +44,14 @@ function WatchVideo() {
         await axios.post(`/users/videos/${id}/like`);
       }
 
-      loadData();
+      setVideo((prev) => ({
+        ...prev,
+        likedByCurrentUser: !prev.likedByCurrentUser,
+        likeCount: prev.likedByCurrentUser
+          ? prev.likeCount - 1
+          : prev.likeCount + 1,
+      }));
+
     } catch (err) {
       console.error("Like error:", err);
     }
@@ -56,13 +63,24 @@ function WatchVideo() {
     try {
       setSubmitting(true);
 
-      await axios.post("/users/comment", {
+      const res = await axios.post("/users/comment", {
         videoId: id,
         content: newComment,
       });
 
+      const createdComment = res.data;
+
+      // Add comment instantly to UI
+      setComments((prev) => [...prev, createdComment]);
+
+      // Update comment count locally
+      setVideo((prev) => ({
+        ...prev,
+        commentCount: prev.commentCount + 1,
+      }));
+
       setNewComment("");
-      loadData();
+
     } catch (err) {
       console.error("Comment error:", err);
     } finally {
@@ -74,10 +92,15 @@ function WatchVideo() {
     try {
       await axios.delete(`/users/comments/${commentId}`);
 
-      // Remove instantly from UI
       setComments((prev) =>
         prev.filter((c) => c.id !== commentId)
       );
+
+      setVideo((prev) => ({
+        ...prev,
+        commentCount: prev.commentCount - 1,
+      }));
+
     } catch (err) {
       console.error("Delete comment error:", err);
       alert("Delete failed");
@@ -90,8 +113,16 @@ function WatchVideo() {
     return <div className="container">Video not found</div>;
 
   const extractVideoId = (url) => {
-  const regExp =
-      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    if (!url) return null;
+
+    // handle shorts
+    if (url.includes("shorts/")) {
+      return url.split("shorts/")[1].split("?")[0];
+    }
+
+    const regExp =
+      /^.*(youtu.be\/|v\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+
     const match = url.match(regExp);
     return match && match[2].length === 11 ? match[2] : null;
   };
