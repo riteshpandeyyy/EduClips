@@ -1,11 +1,49 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { Link } from "react-router-dom";
+import axios from "../api/axios";
 import { getRole, isLoggedIn, logout } from "../utils/auth";
 
 function Navbar() {
   const role = getRole();
-  const navigate = useNavigate();
-  const [keyword, setKeyword] = useState("");
+
+  const [notifications, setNotifications] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const dropdownRef = useRef(null);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const loadNotifications = async () => {
+    try {
+      const res = await axios.get("/users/notifications");
+      setNotifications(res.data);
+    } catch (err) {
+      console.error("Notification load error:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (isLoggedIn()) {
+      loadNotifications();
+    }
+  }, []);
+
+  // Close dropdown if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -13,12 +51,16 @@ function Navbar() {
     window.location.href = "/";
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (!keyword.trim()) return;
+  const markAsRead = async (id) => {
+    try {
+      await axios.patch(`/users/notifications/${id}/read`);
 
-    navigate(`/search?keyword=${encodeURIComponent(keyword)}`);
-    setKeyword("");
+      // 🔥 Always reload from backend (no stale state)
+      loadNotifications();
+
+    } catch (err) {
+      console.error("Mark read error:", err);
+    }
   };
 
   return (
@@ -32,7 +74,6 @@ function Navbar() {
         alignItems: "center",
       }}
     >
-      {/* Left Side */}
       <div>
         <Link to="/feed">Home</Link>
 
@@ -53,40 +94,85 @@ function Navbar() {
         )}
       </div>
 
-      {/* Center - Search */}
       {isLoggedIn() && (
-        <form
-          onSubmit={handleSearch}
-          style={{ display: "flex", gap: "8px" }}
+        <div
+          style={{
+            position: "relative",
+            display: "flex",
+            gap: "20px",
+            alignItems: "center"
+          }}
+          ref={dropdownRef}
         >
-          <input
-            type="text"
-            placeholder="Search..."
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            style={{
-              padding: "6px 10px",
-              borderRadius: "6px",
-              border: "1px solid #ddd",
-              outline: "none",
-            }}
-          />
 
-          <button
-            type="submit"
-            className="button"
-            style={{ padding: "6px 12px" }}
+          {/* 🔔 Notification Bell */}
+          <div
+            style={{ cursor: "pointer", position: "relative" }}
+            onClick={() => setShowDropdown(!showDropdown)}
           >
-            Search
-          </button>
-        </form>
-      )}
+            🔔
 
-      {/* Right Side */}
-      {isLoggedIn() && (
-        <button className="button" onClick={handleLogout}>
-          Logout
-        </button>
+            {unreadCount > 0 && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: "-5px",
+                  right: "-10px",
+                  background: "red",
+                  color: "white",
+                  borderRadius: "50%",
+                  fontSize: "12px",
+                  padding: "3px 6px",
+                }}
+              >
+                {unreadCount}
+              </span>
+            )}
+          </div>
+
+          {/* Dropdown */}
+          {showDropdown && (
+            <div
+              style={{
+                position: "absolute",
+                top: "40px",
+                right: "60px",
+                width: "300px",
+                background: "white",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                borderRadius: "8px",
+                padding: "10px",
+                maxHeight: "400px",
+                overflowY: "auto",
+                zIndex: 1000
+              }}
+            >
+              {notifications.length === 0 ? (
+                <p>No notifications</p>
+              ) : (
+                notifications.map(n => (
+                  <div
+                    key={n.id}
+                    onClick={() => markAsRead(n.id)}
+                    style={{
+                      padding: "10px",
+                      marginBottom: "5px",
+                      background: n.read ? "#f9f9f9" : "#eaf4ff",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {n.message}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          <button className="button" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
       )}
     </nav>
   );

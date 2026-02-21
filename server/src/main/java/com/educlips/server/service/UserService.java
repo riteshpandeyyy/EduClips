@@ -25,9 +25,11 @@ import java.util.Map;
 import com.educlips.server.entity.UserRole;
 import com.educlips.server.entity.VideoEntity;
 import com.educlips.server.entity.VideoLikeEntity;
+import com.educlips.server.entity.NotificationEntity;
 import com.educlips.server.repository.VideoRepository;
 import com.educlips.server.repository.VideoLikeRepository;
 import com.educlips.server.repository.CreatorFollowRepository;
+import com.educlips.server.repository.NotificationRepository;
 
 import java.util.List;
 
@@ -42,6 +44,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.educlips.server.repository.CommentRepository;
 import com.educlips.server.entity.CommentEntity;
@@ -64,6 +67,9 @@ public class UserService {
     private final VideoLikeRepository videoLikeRepository;
     private final CreatorFollowRepository creatorFollowRepository;
     private final CommentRepository commentRepository;
+
+    @Autowired
+    private final NotificationRepository notificationRepository;
     
 
 
@@ -77,7 +83,8 @@ public class UserService {
             VideoRepository videoRepository,
             VideoLikeRepository videoLikeRepository,
             CreatorFollowRepository creatorFollowRepository,
-            CommentRepository commentRepository
+            CommentRepository commentRepository,
+           NotificationRepository notificationRepository
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -88,6 +95,7 @@ public class UserService {
         this.videoLikeRepository = videoLikeRepository;
         this.creatorFollowRepository = creatorFollowRepository;
         this.commentRepository = commentRepository;
+        this.notificationRepository = notificationRepository;
     }
 
 
@@ -638,6 +646,15 @@ public class UserService {
         follow.setCreator(creator);
 
         creatorFollowRepository.save(follow);
+
+        // Create notification for the creator
+        NotificationEntity notification = new NotificationEntity();
+        notification.setRecipient(creator.getUser());
+        notification.setMessage(
+        user.getName() + " started following you."
+        );
+
+        notificationRepository.save(notification);
     }
 
     public void unfollowCreator(String email, Long creatorId) {
@@ -677,6 +694,22 @@ public class UserService {
         comment.setVideo(video);
 
         CommentEntity saved = commentRepository.save(comment);
+
+        // Optionally, create notification for video creator
+        UserEntity creatorUser = video.getCourse()
+                               .getCreator()
+                               .getUser();
+
+                if (!creatorUser.getId().equals(user.getId())) {
+
+                NotificationEntity notification = new NotificationEntity();
+                notification.setRecipient(creatorUser);
+                notification.setMessage(
+                        user.getName() + " commented on your video."
+                );
+
+                notificationRepository.save(notification);
+                }
 
         return new CommentResponse(
                 saved.getId(),
@@ -931,6 +964,36 @@ public class UserService {
         }
 
         courseRepository.delete(course);
+        }
+
+        public List<NotificationEntity> getNotifications(String email) {
+
+                UserEntity user = userRepository
+                        .findByEmail(email)
+                        .orElseThrow();
+
+                return notificationRepository
+                        .findByRecipientOrderByCreatedAtDesc(user);
+        }
+
+        public void markNotificationAsRead(String email, Long notificationId) {
+
+        UserEntity user = userRepository
+                .findByEmail(email)
+                .orElseThrow();
+
+        NotificationEntity notification =
+                notificationRepository
+                        .findById(notificationId)
+                        .orElseThrow();
+
+        // Security check
+        if (!notification.getRecipient().getId().equals(user.getId())) {
+                throw new RuntimeException("Unauthorized");
+        }
+
+        notification.setRead(true);
+        notificationRepository.save(notification);
         }
 
 }

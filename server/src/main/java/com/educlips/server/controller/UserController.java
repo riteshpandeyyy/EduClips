@@ -11,6 +11,7 @@ import com.educlips.server.entity.UserEntity;
 import com.educlips.server.entity.VideoEntity;
 import com.educlips.server.mapper.CreatorProfileMapper;
 import com.educlips.server.service.UserService;
+import com.educlips.server.entity.NotificationEntity;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -535,4 +536,21 @@ public class UserController {
         userService.deleteCourse(authentication.getName(), courseId);
         return "Course deleted";
         }
+
+        @GetMapping("/notifications")
+        public List<NotificationEntity> getNotifications(Authentication authentication) {
+        return userService.getNotifications(authentication.getName());
+        }
+
+        @PatchMapping("/notifications/{id}/read")
+        public String markAsRead(
+                @PathVariable Long id,
+                Authentication authentication
+        ) {
+
+        userService.markNotificationAsRead(authentication.getName(), id);
+
+        return "Marked as read";
+        }
+        
 }
