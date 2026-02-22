@@ -275,7 +275,8 @@ function VideoItem({
 /* ---------- RESPONSIVE STYLES ---------- */
 
 const feedContainer = {
-  height: "100vh",
+  height: "calc(100vh - 60px)",
+  marginTop: "60px",
   overflowY: "scroll",
   scrollSnapType: "y mandatory",
   background: "black",
@@ -283,7 +284,7 @@ const feedContainer = {
 };
 
 const videoSection = {
-  height: "100vh",
+  height: "calc(100vh - 60px)",
   scrollSnapAlign: "start",
   display: "flex",
   justifyContent: "center",
@@ -336,7 +337,7 @@ const gradientOverlay = {
 
 const leftContent = {
   position: "absolute",
-  bottom: "90px",
+  bottom: "100px",
   left: "20px",
   right: "90px",
   color: "white",
