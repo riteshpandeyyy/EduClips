@@ -7,7 +7,7 @@ function Feed() {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [activeSoundId, setActiveSoundId] = useState(null);
-  const [viewedIds, setViewedIds] = useState(new Set());
+  const [viewedVideos, setViewedVideos] = useState(new Set());
 
   const navigate = useNavigate();
   const observer = useRef();
@@ -67,6 +67,31 @@ function Feed() {
       : null;
   };
 
+  const incrementView = async (videoId) => {
+    if (viewedVideos.has(videoId)) return;
+
+    try {
+      await axios.get(`/users/videos/${videoId}`);
+
+      setVideos((prev) =>
+        prev.map((v) =>
+          v.id === videoId
+            ? { ...v, viewCount: Number(v.viewCount) + 1 }
+            : v
+        )
+      );
+
+      setViewedVideos((prev) => {
+        const updated = new Set(prev);
+        updated.add(videoId);
+        return updated;
+      });
+
+    } catch (err) {
+      console.error("View increment error:", err);
+    }
+  };
+
   const handleLikeToggle = async (videoId, liked) => {
     try {
       if (liked) {
@@ -93,30 +118,6 @@ function Feed() {
     }
   };
 
-  const handleViewIncrement = async (videoId) => {
-    if (viewedIds.has(videoId)) return;
-
-    setViewedIds((prev) => {
-      const updated = new Set(prev);
-      updated.add(videoId);
-      return updated;
-    });
-
-    try {
-      await axios.post(`/users/videos/${videoId}/view`);
-
-      setVideos((prev) =>
-        prev.map((v) =>
-          v.id === videoId
-            ? { ...v, viewCount: v.viewCount + 1 }
-            : v
-        )
-      );
-    } catch (err) {
-      console.error("View increment error:", err);
-    }
-  };
-
   return (
     <div style={feedContainer}>
       {videos.map((v, index) => {
@@ -133,8 +134,9 @@ function Feed() {
             activeSoundId={activeSoundId}
             setActiveSoundId={setActiveSoundId}
             navigate={navigate}
+            incrementView={incrementView}
             handleLikeToggle={handleLikeToggle}
-            handleViewIncrement={handleViewIncrement}
+            viewedVideos={viewedVideos}
           />
         );
       })}
@@ -150,29 +152,47 @@ function VideoItem({
   activeSoundId,
   setActiveSoundId,
   navigate,
+  incrementView,
   handleLikeToggle,
-  handleViewIncrement,
+  viewedVideos,
 }) {
   const videoRef = useRef(null);
+  const timerRef = useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting && activeSoundId === video.id) {
-            setActiveSoundId(null);
+          if (entry.isIntersecting) {
+
+            if (!viewedVideos.has(video.id)) {
+              timerRef.current = setTimeout(() => {
+                incrementView(video.id);
+              }, 3000);
+            }
+
+          } else {
+            if (timerRef.current) {
+              clearTimeout(timerRef.current);
+              timerRef.current = null;
+            }
+
+            if (activeSoundId === video.id) {
+              setActiveSoundId(null);
+            }
           }
         });
       },
-      { threshold: 0.4 }
+      { threshold: 0.6 }
     );
 
     if (videoRef.current) observer.observe(videoRef.current);
 
     return () => {
       if (videoRef.current) observer.unobserve(videoRef.current);
+      if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [video.id, activeSoundId]);
+  }, [video.id, viewedVideos, activeSoundId]);
 
   return (
     <div
@@ -193,18 +213,13 @@ function VideoItem({
           title={video.title}
         ></iframe>
 
-        {/* SOUND BUTTON (ONLY THIS HANDLES VIEW) */}
         <div
           style={soundIcon}
           onClick={(e) => {
             e.stopPropagation();
-
-            if (activeSoundId !== video.id) {
-              setActiveSoundId(video.id);
-              handleViewIncrement(video.id);
-            } else {
-              setActiveSoundId(null);
-            }
+            setActiveSoundId(
+              activeSoundId === video.id ? null : video.id
+            );
           }}
         >
           {activeSoundId === video.id ? "🔊" : "🔇"}
@@ -221,8 +236,8 @@ function VideoItem({
           @{video.creatorName}
         </Link>
 
-        <h3 style={{ margin: "8px 0" }}>{video.title}</h3>
-        <p style={{ opacity: 0.8 }}>{video.description}</p>
+        <h3>{video.title}</h3>
+        <p>{video.description}</p>
       </div>
 
       <div style={rightActions}>
@@ -256,6 +271,8 @@ function VideoItem({
     </div>
   );
 }
+
+/* styles same as before */
 
 const feedContainer = {
   height: "100vh",
