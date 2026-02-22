@@ -275,8 +275,7 @@ function VideoItem({
 /* ---------- RESPONSIVE STYLES ---------- */
 
 const feedContainer = {
-  height: "calc(100vh - 60px)",
-  marginTop: "60px",
+  height: "100vh",
   overflowY: "scroll",
   scrollSnapType: "y mandatory",
   background: "black",
@@ -284,7 +283,7 @@ const feedContainer = {
 };
 
 const videoSection = {
-  height: "calc(100vh - 60px)",
+  height: "100vh",
   scrollSnapAlign: "start",
   display: "flex",
   justifyContent: "center",

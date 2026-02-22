@@ -124,11 +124,16 @@ function CreatorProfile() {
 
   return (
     <div style={pageStyle}>
-      <div style={{ width: "800px", maxWidth: "95%" }}>
+      <div style={{ width: "100%", maxWidth: "800px" }}>
         
         {/* PROFILE HEADER */}
         <div style={profileCard}>
-          <h2 style={{ marginBottom: "10px" }}>
+          <h2
+            style={{
+              marginBottom: "10px",
+              fontSize: "clamp(20px, 5vw, 28px)",
+            }}
+          >
             {creator.name}
           </h2>
 
@@ -162,11 +167,18 @@ function CreatorProfile() {
             </>
           )}
 
-          <p style={{ marginTop: "10px", color: "#888" }}>
+          <p style={{ marginTop: "12px", color: "#888" }}>
             {creator.followers} Followers
           </p>
 
-          <div style={{ marginTop: "15px" }}>
+          <div
+            style={{
+              marginTop: "15px",
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "10px",
+            }}
+          >
             {!isOwner && (
               <button
                 onClick={handleFollowToggle}
@@ -196,7 +208,13 @@ function CreatorProfile() {
         </div>
 
         {/* COURSES */}
-        <h3 style={{ marginTop: "40px", color: "white" }}>
+        <h3
+          style={{
+            marginTop: "40px",
+            color: "white",
+            fontSize: "clamp(18px, 4vw, 22px)",
+          }}
+        >
           Published Courses
         </h3>
 
@@ -218,7 +236,9 @@ function CreatorProfile() {
                     key={video.id}
                     style={videoItem}
                   >
-                    <span>{video.title}</span>
+                    <div style={{ fontWeight: "500" }}>
+                      {video.title}
+                    </div>
                     <Link
                       to={`/video/${video.id}`}
                       style={watchLink}
@@ -240,48 +260,55 @@ function CreatorProfile() {
 const pageStyle = {
   background: "#0f0f0f",
   minHeight: "100vh",
-  padding: "40px 0",
+  padding: "30px 16px",
   display: "flex",
   justifyContent: "center",
+  boxSizing: "border-box",
 };
 
 const profileCard = {
   background: "#1c1c1c",
-  padding: "30px",
+  padding: "24px",
   borderRadius: "16px",
-  boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+  boxShadow: "0 10px 40px rgba(0,0,0,0.6)",
   color: "white",
+  width: "100%",
+  boxSizing: "border-box",
 };
 
 const courseCard = {
   background: "#1c1c1c",
-  padding: "20px",
+  padding: "18px",
   borderRadius: "12px",
   marginTop: "20px",
   color: "white",
+  width: "100%",
+  boxSizing: "border-box",
 };
 
 const videoItem = {
-  marginTop: "10px",
-  padding: "10px",
+  marginTop: "12px",
+  padding: "12px",
   background: "#2a2a2a",
-  borderRadius: "8px",
+  borderRadius: "10px",
   display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
+  flexDirection: "column",
+  gap: "8px",
 };
 
 const inputStyle = {
   width: "100%",
-  padding: "10px",
+  padding: "12px",
   borderRadius: "8px",
   border: "1px solid #333",
   background: "#2a2a2a",
   color: "white",
+  fontSize: "14px",
+  boxSizing: "border-box",
 };
 
 const primaryButton = {
-  padding: "8px 16px",
+  padding: "10px 16px",
   borderRadius: "8px",
   border: "none",
   background: "#ff2e63",
@@ -291,7 +318,7 @@ const primaryButton = {
 };
 
 const secondaryButton = {
-  padding: "8px 16px",
+  padding: "10px 16px",
   borderRadius: "8px",
   border: "none",
   background: "#2a2a2a",
