@@ -77,7 +77,7 @@ public class SecurityConfig {
 
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "https://educlipz.vercel.app/"  // ← REPLACE THIS
+                "https://educlipz.vercel.app/"  
         ));
 
         configuration.setAllowedMethods(List.of(
