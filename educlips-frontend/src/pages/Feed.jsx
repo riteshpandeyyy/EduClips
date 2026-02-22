@@ -272,13 +272,14 @@ function VideoItem({
   );
 }
 
-/* styles same as before */
+/* ---------- RESPONSIVE STYLES ---------- */
 
 const feedContainer = {
   height: "100vh",
   overflowY: "scroll",
   scrollSnapType: "y mandatory",
   background: "black",
+  WebkitOverflowScrolling: "touch",
 };
 
 const videoSection = {
@@ -289,18 +290,24 @@ const videoSection = {
   alignItems: "center",
   position: "relative",
   background: "black",
+  padding: "0 10px",
+  boxSizing: "border-box",
 };
 
 const videoWrapper = {
   position: "relative",
   height: "100%",
+  maxHeight: "100vh",
   aspectRatio: "9 / 16",
+  width: "100%",
+  maxWidth: "500px",
 };
 
 const videoFrame = {
   width: "100%",
   height: "100%",
   border: "none",
+  borderRadius: "12px",
 };
 
 const soundIcon = {
@@ -310,7 +317,7 @@ const soundIcon = {
   fontSize: "22px",
   zIndex: 10,
   background: "rgba(0,0,0,0.6)",
-  padding: "6px 10px",
+  padding: "8px 12px",
   borderRadius: "20px",
   color: "white",
   cursor: "pointer",
@@ -321,37 +328,42 @@ const gradientOverlay = {
   bottom: 0,
   left: 0,
   width: "100%",
-  height: "50%",
+  height: "45%",
   background:
     "linear-gradient(to top, rgba(0,0,0,0.95), transparent)",
+  borderRadius: "0 0 12px 12px",
 };
 
 const leftContent = {
   position: "absolute",
-  bottom: "80px",
+  bottom: "90px",
   left: "20px",
+  right: "90px",
   color: "white",
-  maxWidth: "70%",
   zIndex: 2,
+  display: "flex",
+  flexDirection: "column",
+  gap: "6px",
 };
 
 const creatorLink = {
   color: "#ff2e63",
   fontWeight: "600",
   textDecoration: "none",
+  fontSize: "14px",
 };
 
 const rightActions = {
   position: "absolute",
-  bottom: "140px",
-  right: "20px",
+  bottom: "120px",
+  right: "18px",
   display: "flex",
   flexDirection: "column",
-  gap: "25px",
+  gap: "28px",
   alignItems: "center",
   color: "white",
   zIndex: 2,
-  fontSize: "20px",
+  fontSize: "22px",
 };
 
 const actionItem = {
@@ -359,6 +371,7 @@ const actionItem = {
   flexDirection: "column",
   alignItems: "center",
   cursor: "pointer",
+  fontSize: "22px",
 };
 
 export default Feed;

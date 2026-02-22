@@ -33,8 +33,8 @@ function Search() {
 
   return (
     <div style={pageStyle}>
-      <div style={{ width: "800px", maxWidth: "95%" }}>
-        <h2 style={{ color: "white" }}>
+      <div style={{ width: "100%", maxWidth: "800px" }}>
+        <h2 style={headingStyle}>
           Search Results for{" "}
           <span style={{ color: "#ff2e63" }}>
             "{keyword}"
@@ -42,7 +42,9 @@ function Search() {
         </h2>
 
         {loading && (
-          <p style={{ color: "#aaa" }}>Searching...</p>
+          <p style={{ color: "#aaa", marginTop: "10px" }}>
+            Searching...
+          </p>
         )}
 
         {/* -------- Creators -------- */}
@@ -60,7 +62,7 @@ function Search() {
               style={{ textDecoration: "none" }}
             >
               <div style={cardStyle}>
-                <h4 style={{ marginBottom: "5px" }}>
+                <h4 style={{ marginBottom: "6px" }}>
                   {c.name}
                 </h4>
                 <p style={{ color: "#bbb" }}>
@@ -86,7 +88,7 @@ function Search() {
               style={{ textDecoration: "none" }}
             >
               <div style={cardStyle}>
-                <h4 style={{ marginBottom: "5px" }}>
+                <h4 style={{ marginBottom: "6px" }}>
                   {v.title}
                 </h4>
                 <p style={{ color: "#bbb" }}>
@@ -101,34 +103,45 @@ function Search() {
   );
 }
 
-/* ---------- STYLES ---------- */
+/* ---------- RESPONSIVE STYLES ---------- */
 
 const pageStyle = {
   background: "#0f0f0f",
   minHeight: "100vh",
-  padding: "40px 0",
+  padding: "30px 16px",
   display: "flex",
   justifyContent: "center",
+  boxSizing: "border-box",
+};
+
+const headingStyle = {
+  color: "white",
+  fontSize: "clamp(20px, 5vw, 28px)",
+  marginBottom: "10px",
 };
 
 const sectionTitle = {
-  marginTop: "40px",
+  marginTop: "35px",
   color: "white",
+  fontSize: "clamp(16px, 4vw, 20px)",
 };
 
 const cardStyle = {
   background: "#1c1c1c",
-  padding: "20px",
+  padding: "18px",
   borderRadius: "12px",
   marginTop: "15px",
-  boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
+  boxShadow: "0 8px 25px rgba(0,0,0,0.4)",
   color: "white",
   transition: "0.3s",
+  width: "100%",
+  boxSizing: "border-box",
 };
 
 const emptyText = {
   color: "#777",
   marginTop: "10px",
+  fontSize: "14px",
 };
 
 export default Search;

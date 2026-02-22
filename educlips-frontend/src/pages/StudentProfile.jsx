@@ -60,12 +60,16 @@ function StudentProfile() {
 
   return (
     <div style={pageStyle}>
-      <div style={{ width: "800px", maxWidth: "95%" }}>
+      <div style={{ width: "100%", maxWidth: "800px" }}>
 
         {/* PROFILE HEADER */}
         <div style={profileCard}>
-          <h2>{user.name}</h2>
-          <p style={{ color: "#aaa" }}>{user.email}</p>
+          <h2 style={{ fontSize: "clamp(20px, 5vw, 28px)" }}>
+            {user.name}
+          </h2>
+          <p style={{ color: "#aaa", marginTop: "6px" }}>
+            {user.email}
+          </p>
         </div>
 
         {/* FOLLOWING SECTION */}
@@ -85,7 +89,7 @@ function StudentProfile() {
                 </p>
               </div>
 
-              <div style={{ marginTop: "10px" }}>
+              <div style={buttonRow}>
                 <Link to={`/creator/${creator.id}`}>
                   <button style={primaryButton}>
                     View Profile
@@ -120,11 +124,13 @@ function StudentProfile() {
                 {video.description}
               </p>
 
-              <Link to={`/video/${video.id}`}>
-                <button style={primaryButton}>
-                  Watch
-                </button>
-              </Link>
+              <div style={buttonRow}>
+                <Link to={`/video/${video.id}`}>
+                  <button style={primaryButton}>
+                    Watch
+                  </button>
+                </Link>
+              </div>
             </div>
           ))
         )}
@@ -133,60 +139,75 @@ function StudentProfile() {
   );
 }
 
-/* ---------- STYLES ---------- */
+/* ---------- RESPONSIVE STYLES ---------- */
 
 const pageStyle = {
   background: "#0f0f0f",
   minHeight: "100vh",
-  padding: "40px 0",
+  padding: "30px 16px",
   display: "flex",
   justifyContent: "center",
+  boxSizing: "border-box",
 };
 
 const profileCard = {
   background: "#1c1c1c",
-  padding: "30px",
+  padding: "24px",
   borderRadius: "16px",
-  boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+  boxShadow: "0 10px 40px rgba(0,0,0,0.6)",
   color: "white",
+  width: "100%",
+  boxSizing: "border-box",
 };
 
 const sectionTitle = {
-  marginTop: "40px",
+  marginTop: "35px",
   color: "white",
+  fontSize: "clamp(16px, 4vw, 20px)",
 };
 
 const cardStyle = {
   background: "#1c1c1c",
-  padding: "20px",
+  padding: "18px",
   borderRadius: "12px",
   marginTop: "15px",
-  boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
+  boxShadow: "0 8px 25px rgba(0,0,0,0.4)",
   color: "white",
+  width: "100%",
+  boxSizing: "border-box",
 };
 
 const emptyText = {
   color: "#777",
   marginTop: "10px",
+  fontSize: "14px",
+};
+
+const buttonRow = {
+  marginTop: "12px",
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "10px",
 };
 
 const primaryButton = {
-  padding: "8px 14px",
-  marginRight: "10px",
+  padding: "10px 16px",
   borderRadius: "8px",
   border: "none",
   background: "#ff2e63",
   color: "white",
   cursor: "pointer",
+  fontSize: "14px",
 };
 
 const dangerButton = {
-  padding: "8px 14px",
+  padding: "10px 16px",
   borderRadius: "8px",
   border: "none",
   background: "#e74c3c",
   color: "white",
   cursor: "pointer",
+  fontSize: "14px",
 };
 
 export default StudentProfile;

@@ -24,26 +24,9 @@ function Signup() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#0f0f0f",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        color: "white",
-      }}
-    >
-      <div
-        style={{
-          width: "400px",
-          background: "#1c1c1c",
-          padding: "40px",
-          borderRadius: "16px",
-          boxShadow: "0 0 40px rgba(0,0,0,0.6)",
-        }}
-      >
-        <h2 style={{ textAlign: "center", marginBottom: "30px" }}>
+    <div style={containerStyle}>
+      <div style={cardStyle}>
+        <h2 style={headingStyle}>
           Create Account
         </h2>
 
@@ -58,6 +41,7 @@ function Signup() {
           />
 
           <input
+            type="email"
             placeholder="Email"
             required
             onChange={(e) =>
@@ -91,9 +75,9 @@ function Signup() {
           </button>
         </form>
 
-        <p style={{ marginTop: "20px", textAlign: "center" }}>
+        <p style={bottomText}>
           Already have an account?{" "}
-          <Link to="/" style={{ color: "#ff2e63" }}>
+          <Link to="/" style={linkStyle}>
             Login
           </Link>
         </p>
@@ -101,6 +85,35 @@ function Signup() {
     </div>
   );
 }
+
+/* ---------- RESPONSIVE STYLES ---------- */
+
+const containerStyle = {
+  minHeight: "100vh",
+  background: "#0f0f0f",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  color: "white",
+  padding: "20px",
+  boxSizing: "border-box",
+};
+
+const cardStyle = {
+  width: "100%",
+  maxWidth: "420px",
+  background: "#1c1c1c",
+  padding: "32px",
+  borderRadius: "16px",
+  boxShadow: "0 0 40px rgba(0,0,0,0.6)",
+  boxSizing: "border-box",
+};
+
+const headingStyle = {
+  textAlign: "center",
+  marginBottom: "25px",
+  fontSize: "clamp(20px, 5vw, 26px)",
+};
 
 const inputStyle = {
   width: "100%",
@@ -111,6 +124,8 @@ const inputStyle = {
   background: "#2a2a2a",
   color: "white",
   outline: "none",
+  boxSizing: "border-box",
+  fontSize: "14px",
 };
 
 const buttonStyle = {
@@ -122,6 +137,19 @@ const buttonStyle = {
   color: "white",
   fontWeight: "600",
   cursor: "pointer",
+  fontSize: "14px",
+};
+
+const bottomText = {
+  marginTop: "20px",
+  textAlign: "center",
+  fontSize: "14px",
+};
+
+const linkStyle = {
+  color: "#ff2e63",
+  textDecoration: "none",
+  fontWeight: "500",
 };
 
 export default Signup;

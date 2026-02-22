@@ -65,7 +65,7 @@ function CreatorDashboard() {
 
   return (
     <div style={pageStyle}>
-      <div style={{ width: "900px", maxWidth: "95%" }}>
+      <div style={{ width: "100%", maxWidth: "900px" }}>
         <h2 style={{ color: "white", marginBottom: "20px" }}>
           Creator Studio
         </h2>
@@ -294,9 +294,11 @@ function CreatorDashboard() {
               {videosMap[course.id] &&
                 videosMap[course.id].map((video) => (
                   <div key={video.id} style={videoItem}>
-                    <span>{video.title}</span>
+                    <div style={{ fontWeight: "500" }}>
+                      {video.title}
+                    </div>
 
-                    <div>
+                    <div style={{ display: "flex", flexWrap: "wrap" }}>
                       {!video.published && (
                         <button
                           style={primaryButton}
@@ -351,58 +353,66 @@ function CreatorDashboard() {
 const pageStyle = {
   background: "#0f0f0f",
   minHeight: "100vh",
-  padding: "40px 0",
+  padding: "30px 16px",
   display: "flex",
   justifyContent: "center",
+  boxSizing: "border-box",
 };
 
 const cardStyle = {
   background: "#1c1c1c",
-  padding: "25px",
+  padding: "20px",
   borderRadius: "16px",
   marginTop: "20px",
-  boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+  boxShadow: "0 10px 40px rgba(0,0,0,0.6)",
   color: "white",
+  width: "100%",
+  boxSizing: "border-box",
 };
 
 const inputStyle = {
   width: "100%",
-  padding: "10px",
-  marginBottom: "10px",
+  padding: "12px",
+  marginBottom: "12px",
   borderRadius: "8px",
   border: "1px solid #333",
   background: "#2a2a2a",
   color: "white",
+  fontSize: "14px",
+  boxSizing: "border-box",
 };
 
 const primaryButton = {
-  padding: "8px 14px",
-  marginRight: "10px",
+  padding: "10px 16px",
+  margin: "5px 8px 5px 0",
   borderRadius: "8px",
   border: "none",
   background: "#ff2e63",
   color: "white",
   cursor: "pointer",
+  fontSize: "14px",
 };
 
 const secondaryButton = {
-  padding: "8px 14px",
-  marginRight: "10px",
+  padding: "10px 16px",
+  margin: "5px 8px 5px 0",
   borderRadius: "8px",
   border: "none",
   background: "#2a2a2a",
   color: "white",
   cursor: "pointer",
+  fontSize: "14px",
 };
 
 const dangerButton = {
-  padding: "8px 14px",
-  marginRight: "10px",
+  padding: "10px 16px",
+  margin: "5px 8px 5px 0",
   borderRadius: "8px",
   border: "none",
   background: "#e74c3c",
   color: "white",
   cursor: "pointer",
+  fontSize: "14px",
 };
 
 const badgeStyle = (published) => ({
@@ -414,13 +424,13 @@ const badgeStyle = (published) => ({
 });
 
 const videoItem = {
-  marginTop: "10px",
-  padding: "10px",
+  marginTop: "12px",
+  padding: "14px",
   background: "#2a2a2a",
-  borderRadius: "8px",
+  borderRadius: "10px",
   display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
+  flexDirection: "column",
+  gap: "10px",
 };
 
 export default CreatorDashboard;

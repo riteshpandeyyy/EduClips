@@ -101,16 +101,12 @@ function WatchVideo() {
 
   if (loading)
     return (
-      <div style={{ background: "#0f0f0f", minHeight: "100vh", color: "white", padding: "40px" }}>
-        Loading...
-      </div>
+      <div style={loadingStyle}>Loading...</div>
     );
 
   if (!video)
     return (
-      <div style={{ background: "#0f0f0f", minHeight: "100vh", color: "white", padding: "40px" }}>
-        Video not found
-      </div>
+      <div style={loadingStyle}>Video not found</div>
     );
 
   const extractVideoId = (url) => {
@@ -128,56 +124,31 @@ function WatchVideo() {
   };
 
   return (
-    <div
-      style={{
-        background: "#0f0f0f",
-        minHeight: "100vh",
-        paddingTop: "40px",
-        paddingBottom: "60px",
-        display: "flex",
-        justifyContent: "center",
-      }}
-    >
-      <div style={{ width: "380px", color: "white" }}>
+    <div style={containerStyle}>
+      <div style={contentWrapper}>
+
         {/* Video Frame */}
-        <div
-          style={{
-            borderRadius: "20px",
-            overflow: "hidden",
-            boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
-          }}
-        >
+        <div style={videoWrapper}>
           <iframe
             src={`https://www.youtube.com/embed/${extractVideoId(
               video.videoUrl
             )}`}
             frameBorder="0"
             allowFullScreen
-            style={{
-              width: "100%",
-              height: "640px",
-            }}
+            style={iframeStyle}
+            title={video.title}
           ></iframe>
         </div>
 
         {/* Video Info */}
-        <div style={{ marginTop: "15px" }}>
-          <h3 style={{ margin: "5px 0" }}>{video.title}</h3>
+        <div style={infoSection}>
+          <h3 style={titleStyle}>{video.title}</h3>
 
-          <p style={{ fontSize: "14px", color: "#bbb" }}>
+          <p style={descriptionStyle}>
             {video.description}
           </p>
 
-          <div
-            style={{
-              display: "flex",
-              gap: "15px",
-              fontSize: "14px",
-              color: "#999",
-              marginTop: "10px",
-              marginBottom: "10px",
-            }}
-          >
+          <div style={statsRow}>
             <span>❤️ {video.likeCount}</span>
             <span>👁 {video.viewCount}</span>
             <span>💬 {video.commentCount}</span>
@@ -186,23 +157,18 @@ function WatchVideo() {
           <button
             onClick={handleLikeToggle}
             style={{
-              padding: "8px 16px",
-              borderRadius: "8px",
-              border: "none",
+              ...likeButton,
               background: video.likedByCurrentUser
                 ? "#ff2e63"
                 : "#2a2a2a",
-              color: "white",
-              cursor: "pointer",
-              fontWeight: "500",
             }}
           >
             {video.likedByCurrentUser ? "Unlike" : "Like"}
           </button>
         </div>
 
-        {/* Comments Section */}
-        <div style={{ marginTop: "40px" }}>
+        {/* Comments */}
+        <div style={commentSection}>
           <h3 style={{ marginBottom: "15px" }}>Comments</h3>
 
           <div style={{ marginBottom: "20px" }}>
@@ -210,28 +176,13 @@ function WatchVideo() {
               placeholder="Write a comment..."
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "10px",
-                borderRadius: "8px",
-                border: "1px solid #333",
-                background: "#1c1c1c",
-                color: "white",
-                marginBottom: "10px",
-              }}
+              style={commentInput}
             />
 
             <button
               onClick={handleAddComment}
               disabled={submitting}
-              style={{
-                padding: "8px 16px",
-                borderRadius: "8px",
-                border: "none",
-                background: "#ff2e63",
-                color: "white",
-                cursor: "pointer",
-              }}
+              style={postButton}
             >
               {submitting ? "Posting..." : "Post Comment"}
             </button>
@@ -241,20 +192,12 @@ function WatchVideo() {
             <p style={{ color: "#888" }}>No comments yet</p>
           ) : (
             comments.map((c) => (
-              <div
-                key={c.id}
-                style={{
-                  padding: "12px",
-                  marginBottom: "10px",
-                  background: "#1c1c1c",
-                  borderRadius: "8px",
-                  fontSize: "14px",
-                }}
-              >
+              <div key={c.id} style={commentCard}>
                 <strong style={{ color: "#ff2e63" }}>
                   {c.userName}
                 </strong>
-                <p style={{ marginTop: "5px", color: "#ccc" }}>
+
+                <p style={commentText}>
                   {c.content}
                 </p>
 
@@ -264,14 +207,7 @@ function WatchVideo() {
                       onClick={() =>
                         handleDeleteComment(c.id)
                       }
-                      style={{
-                        marginTop: "5px",
-                        background: "none",
-                        border: "none",
-                        color: "#ff2e63",
-                        cursor: "pointer",
-                        fontSize: "12px",
-                      }}
+                      style={deleteButton}
                     >
                       Delete
                     </button>
@@ -284,5 +220,126 @@ function WatchVideo() {
     </div>
   );
 }
+
+/* ---------- RESPONSIVE STYLES ---------- */
+
+const containerStyle = {
+  background: "#0f0f0f",
+  minHeight: "100vh",
+  padding: "30px 16px",
+  display: "flex",
+  justifyContent: "center",
+  boxSizing: "border-box",
+};
+
+const contentWrapper = {
+  width: "100%",
+  maxWidth: "500px",
+  color: "white",
+};
+
+const videoWrapper = {
+  width: "100%",
+  aspectRatio: "9 / 16",
+  borderRadius: "16px",
+  overflow: "hidden",
+  boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+};
+
+const iframeStyle = {
+  width: "100%",
+  height: "100%",
+  border: "none",
+};
+
+const infoSection = {
+  marginTop: "18px",
+};
+
+const titleStyle = {
+  margin: "5px 0",
+  fontSize: "clamp(16px, 4vw, 20px)",
+};
+
+const descriptionStyle = {
+  fontSize: "14px",
+  color: "#bbb",
+  lineHeight: "1.5",
+};
+
+const statsRow = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "15px",
+  fontSize: "14px",
+  color: "#999",
+  marginTop: "10px",
+  marginBottom: "12px",
+};
+
+const likeButton = {
+  padding: "10px 18px",
+  borderRadius: "8px",
+  border: "none",
+  color: "white",
+  cursor: "pointer",
+  fontWeight: "500",
+  fontSize: "14px",
+};
+
+const commentSection = {
+  marginTop: "40px",
+};
+
+const commentInput = {
+  width: "100%",
+  padding: "12px",
+  borderRadius: "8px",
+  border: "1px solid #333",
+  background: "#1c1c1c",
+  color: "white",
+  marginBottom: "10px",
+  boxSizing: "border-box",
+};
+
+const postButton = {
+  padding: "10px 18px",
+  borderRadius: "8px",
+  border: "none",
+  background: "#ff2e63",
+  color: "white",
+  cursor: "pointer",
+  fontSize: "14px",
+};
+
+const commentCard = {
+  padding: "12px",
+  marginBottom: "10px",
+  background: "#1c1c1c",
+  borderRadius: "8px",
+  fontSize: "14px",
+  wordBreak: "break-word",
+};
+
+const commentText = {
+  marginTop: "6px",
+  color: "#ccc",
+};
+
+const deleteButton = {
+  marginTop: "6px",
+  background: "none",
+  border: "none",
+  color: "#ff2e63",
+  cursor: "pointer",
+  fontSize: "12px",
+};
+
+const loadingStyle = {
+  background: "#0f0f0f",
+  minHeight: "100vh",
+  color: "white",
+  padding: "40px",
+};
 
 export default WatchVideo;
