@@ -179,11 +179,7 @@ function CreatorDashboard() {
                 <button
                   style={dangerButton}
                   onClick={async () => {
-                    if (
-                      !window.confirm(
-                        "Delete this course and all videos?"
-                      )
-                    )
+                    if (!window.confirm("Delete this course and all videos?"))
                       return;
 
                     try {
@@ -192,9 +188,7 @@ function CreatorDashboard() {
                       );
 
                       setCourses((prev) =>
-                        prev.filter(
-                          (c) => c.id !== course.id
-                        )
+                        prev.filter((c) => c.id !== course.id)
                       );
                     } catch {
                       alert("Delete failed");
@@ -209,8 +203,7 @@ function CreatorDashboard() {
                   onClick={() =>
                     setVideoForms((prev) => ({
                       ...prev,
-                      [course.id]:
-                        !prev[course.id],
+                      [course.id]: !prev[course.id],
                     }))
                   }
                 >
@@ -229,8 +222,7 @@ function CreatorDashboard() {
                         ...prev,
                         [course.id]: {
                           ...prev[course.id],
-                          title:
-                            e.target.value,
+                          title: e.target.value,
                         },
                       }))
                     }
@@ -244,8 +236,7 @@ function CreatorDashboard() {
                         ...prev,
                         [course.id]: {
                           ...prev[course.id],
-                          description:
-                            e.target.value,
+                          description: e.target.value,
                         },
                       }))
                     }
@@ -259,8 +250,7 @@ function CreatorDashboard() {
                         ...prev,
                         [course.id]: {
                           ...prev[course.id],
-                          videoUrl:
-                            e.target.value,
+                          videoUrl: e.target.value,
                         },
                       }))
                     }
@@ -270,28 +260,28 @@ function CreatorDashboard() {
                     style={primaryButton}
                     onClick={async () => {
                       try {
+                        const existingVideos =
+                          videosMap[course.id] || [];
+
+                        const orderIndex =
+                          existingVideos.length + 1;
+
                         await axios.post(
                           `/users/creator/courses/${course.id}/videos`,
-                          videoData[
-                            course.id
-                          ]
+                          {
+                            ...videoData[course.id],
+                            orderIndex,
+                          }
                         );
 
-                        setVideoForms(
-                          (prev) => ({
-                            ...prev,
-                            [course.id]:
-                              false,
-                          })
-                        );
+                        setVideoForms((prev) => ({
+                          ...prev,
+                          [course.id]: false,
+                        }));
 
-                        loadVideos(
-                          course.id
-                        );
+                        loadVideos(course.id);
                       } catch {
-                        alert(
-                          "Video creation failed"
-                        );
+                        alert("Video creation failed");
                       }
                     }}
                   >
@@ -302,75 +292,52 @@ function CreatorDashboard() {
 
               {/* VIDEO LIST */}
               {videosMap[course.id] &&
-                videosMap[course.id].map(
-                  (video) => (
-                    <div
-                      key={video.id}
-                      style={videoItem}
-                    >
-                      <span>
-                        {video.title}
-                      </span>
+                videosMap[course.id].map((video) => (
+                  <div key={video.id} style={videoItem}>
+                    <span>{video.title}</span>
 
-                      <div>
-                        {!video.published && (
-                          <button
-                            style={
-                              primaryButton
-                            }
-                            onClick={async () => {
-                              try {
-                                await axios.patch(
-                                  `/users/creator/videos/${video.id}/publish`
-                                );
-
-                                loadVideos(
-                                  course.id
-                                );
-                              } catch {
-                                alert(
-                                  "Publish failed"
-                                );
-                              }
-                            }}
-                          >
-                            Publish
-                          </button>
-                        )}
-
+                    <div>
+                      {!video.published && (
                         <button
-                          style={
-                            dangerButton
-                          }
+                          style={primaryButton}
                           onClick={async () => {
-                            if (
-                              !window.confirm(
-                                "Delete this video?"
-                              )
-                            )
-                              return;
-
                             try {
-                              await axios.delete(
-                                `/users/creator/videos/${video.id}`
+                              await axios.patch(
+                                `/users/creator/videos/${video.id}/publish`
                               );
 
-                              loadVideos(
-                                course.id
-                              );
+                              loadVideos(course.id);
                             } catch {
-                              alert(
-                                "Delete failed"
-                              );
+                              alert("Publish failed");
                             }
                           }}
                         >
-                          Delete
+                          Publish
                         </button>
-                      </div>
+                      )}
+
+                      <button
+                        style={dangerButton}
+                        onClick={async () => {
+                          if (!window.confirm("Delete this video?"))
+                            return;
+
+                          try {
+                            await axios.delete(
+                              `/users/creator/videos/${video.id}`
+                            );
+
+                            loadVideos(course.id);
+                          } catch {
+                            alert("Delete failed");
+                          }
+                        }}
+                      >
+                        Delete
+                      </button>
                     </div>
-                  )
-                )}
+                  </div>
+                ))}
             </div>
           ))
         )}
