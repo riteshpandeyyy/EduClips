@@ -71,7 +71,7 @@ function Navbar() {
   return (
     <nav style={navStyle}>
       {/* LEFT SIDE */}
-      <div style={{ display: "flex", gap: "25px", alignItems: "center" }}>
+      <div style={leftSection}>
         <Link to="/feed" style={logoStyle}>
           EDUCLIPS
         </Link>
@@ -108,10 +108,9 @@ function Navbar() {
 
       {/* RIGHT SIDE */}
       {isLoggedIn() && (
-        <div style={{ display: "flex", gap: "25px", alignItems: "center" }} ref={dropdownRef}>
-          {/* Notification */}
+        <div style={rightSection} ref={dropdownRef}>
           <div
-            style={{ cursor: "pointer", position: "relative", fontSize: "20px" }}
+            style={notificationIcon}
             onClick={() => setShowDropdown(!showDropdown)}
           >
             🔔
@@ -155,22 +154,38 @@ function Navbar() {
   );
 }
 
-/* STYLES */
+/* ---------- RESPONSIVE STYLES ---------- */
 
 const navStyle = {
   position: "sticky",
   top: 0,
   zIndex: 1000,
-  padding: "15px 40px",
+  padding: "12px 16px",
   background: "#0f0f0f",
   borderBottom: "1px solid #222",
   display: "flex",
+  flexWrap: "wrap",
   justifyContent: "space-between",
+  alignItems: "center",
+  gap: "12px",
+};
+
+const leftSection = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "16px",
   alignItems: "center",
 };
 
+const rightSection = {
+  display: "flex",
+  gap: "16px",
+  alignItems: "center",
+  position: "relative",
+};
+
 const logoStyle = {
-  fontSize: "20px",
+  fontSize: "18px",
   fontWeight: "700",
   color: "#ff2e63",
   textDecoration: "none",
@@ -179,21 +194,24 @@ const logoStyle = {
 
 const searchFormStyle = {
   display: "flex",
-  alignItems: "center",
+  flex: "1",
+  minWidth: "200px",
+  maxWidth: "100%",
 };
 
 const searchInputStyle = {
-  padding: "8px 12px",
+  flex: "1",
+  padding: "8px 10px",
   borderRadius: "8px 0 0 8px",
   border: "1px solid #333",
   background: "#1c1c1c",
   color: "white",
   outline: "none",
-  width: "250px",
+  minWidth: 0,
 };
 
 const searchButtonStyle = {
-  padding: "8px 14px",
+  padding: "8px 12px",
   borderRadius: "0 8px 8px 0",
   border: "none",
   background: "#ff2e63",
@@ -202,13 +220,20 @@ const searchButtonStyle = {
 };
 
 const logoutButtonStyle = {
-  padding: "8px 16px",
+  padding: "8px 12px",
   borderRadius: "8px",
   border: "none",
   background: "#ff2e63",
   color: "white",
   fontWeight: "600",
   cursor: "pointer",
+  fontSize: "13px",
+};
+
+const notificationIcon = {
+  cursor: "pointer",
+  position: "relative",
+  fontSize: "18px",
 };
 
 const badgeStyle = {
@@ -218,16 +243,17 @@ const badgeStyle = {
   background: "#ff2e63",
   color: "white",
   borderRadius: "50%",
-  fontSize: "11px",
-  padding: "4px 7px",
+  fontSize: "10px",
+  padding: "4px 6px",
   fontWeight: "600",
 };
 
 const dropdownStyle = {
   position: "absolute",
-  top: "45px",
+  top: "40px",
   right: 0,
-  width: "320px",
+  width: "280px",
+  maxWidth: "90vw",
   background: "#1c1c1c",
   borderRadius: "12px",
   padding: "15px",
@@ -244,7 +270,8 @@ function NavLink({ to, children }) {
         textDecoration: "none",
         color: "#ccc",
         fontWeight: "500",
-        fontSize: "14px",
+        fontSize: "13px",
+        whiteSpace: "nowrap",
       }}
       onMouseEnter={(e) => (e.target.style.color = "white")}
       onMouseLeave={(e) => (e.target.style.color = "#ccc")}
