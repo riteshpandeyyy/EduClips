@@ -19,7 +19,7 @@ function Feed() {
   const loadVideos = async (pageNumber) => {
     try {
       const res = await axios.get(
-        `/users/feed?page=${pageNumber}&size=5`
+        `/users/feed?page=${pageNumber}&size=20`
       );
 
       if (pageNumber === 0) {
