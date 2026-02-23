@@ -3,6 +3,7 @@ import axios from "../api/axios";
 import { Link } from "react-router-dom";
 
 function Signup() {
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -12,14 +13,32 @@ function Signup() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       await axios.post("/users/signup", form);
       alert("Signup successful");
       window.location.href = "/";
     } catch (err) {
-      console.error(err);
-      alert("Signup failed");
+
+      // Server not reachable / cold start
+      if (!err.response) {
+        alert(
+          "Server is waking up. This may take 30-60 seconds."
+        );
+
+      // Email already exists (most backends return 409)
+      } else if (err.response.status === 409) {
+        alert("Email already registered. Please login instead.");
+
+      // Validation error (bad input)
+      } else if (err.response.status === 400) {
+        alert("Please check your input fields.");
+
+      // Other server errors
+      } else {
+        alert("Signup failed. Please try again.");
+      }
     }
   };
 
@@ -70,8 +89,16 @@ function Signup() {
             <option value="CREATOR">Creator</option>
           </select>
 
-          <button type="submit" style={buttonStyle}>
-            Signup
+          <button
+            type="submit"
+            style={{
+              ...buttonStyle,
+              opacity: loading ? 0.7 : 1,
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
+            disabled={loading}
+          >
+            {loading ? "Please wait..." : "Signup"}
           </button>
         </form>
 

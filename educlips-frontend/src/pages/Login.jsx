@@ -5,6 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,6 +17,7 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const res = await axios.post("/users/login", {
@@ -40,9 +42,27 @@ function Login() {
       } else {
         window.location.href = "/feed";
       }
-    } catch (err) {
-      console.error(err);
-      alert("Login failed");
+      } catch (err) {
+
+      // Server not reachable / cold start
+      if (!err.response) {
+        alert(
+          "Server is waking up. This may take 30-60 seconds."
+        );
+
+      // Wrong credentials
+      } else if (err.response.status === 401) {
+        alert("Invalid email or password.");
+
+      // Validation error
+      } else if (err.response.status === 400) {
+        alert("Please check your input.");
+
+      // Other server errors
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
+    }finally {    setLoading(false); 
     }
   };
 
@@ -72,8 +92,16 @@ function Login() {
             style={inputStyle}
           />
 
-          <button type="submit" style={buttonStyle}>
-            Login
+          <button
+            type="submit"
+            style={{
+              ...buttonStyle,
+              opacity: loading ? 0.7 : 1,
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
+            disabled={loading}
+          >
+            {loading ? "Please wait..." : "Login"}
           </button>
         </form>
 
